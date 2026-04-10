@@ -1,0 +1,47 @@
+<?php
+require_once __DIR__ . '/../includes/core.php';
+
+$board_uri = preg_replace('/[^a-z0-9]/', '', $_GET['board'] ?? '');
+$post_id   = (int)($_GET['post'] ?? 0);
+$board     = get_board($board_uri);
+
+if (!$board || !$post_id) {
+    http_response_code(400);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Invalid request.']);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $reason = trim($_POST['reason'] ?? '');
+    if (!$reason) {
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Please provide a reason.']);
+        exit;
+    }
+    db()->prepare("INSERT INTO reports (post_id, board_uri, reason, reporter_ip) VALUES (?, ?, ?, ?)")
+        ->execute([$post_id, $board_uri, $reason, get_ip()]);
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => true]);
+    exit;
+}
+?><!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Report — /<?= h($board_uri) ?>/</title>
+    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/style.css">
+</head>
+<body>
+<?= render_nav($board_uri) ?>
+<h1>Report Post #<?= $post_id ?></h1>
+<fieldset>
+<form method="post">
+<div class="form-row"><label>Reason:</label>
+<input type="text" name="reason" maxlength="300" style="width:300px" required></div>
+<div class="form-row"><input type="submit" value="Submit Report"></div>
+</form>
+</fieldset>
+</body>
+</html>
