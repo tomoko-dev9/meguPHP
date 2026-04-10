@@ -92,7 +92,7 @@ function format_post(string $body, string $board_uri): string {
     // #flip — must be the only content on the post
     if (strtolower($trimmed) === '#flip') {
         $result = rand(0, 1) ? 'Heads' : 'Tails';
-        return '<p><span class="quote-text">#flip → <strong>' . $result . '</strong></span></p>';
+        return '<span class="quote-text">#flip → <strong>' . $result . '</strong></span>';
     }
 
     // #8ball — must be the only content on the post
@@ -106,7 +106,7 @@ function format_post(string $body, string $board_uri): string {
             "Don't count on it.", 'My reply is no.', 'My sources say no.',
             'Outlook not so good.', 'Very doubtful.',
         ];
-        return '<p><span class="quote-text">#8ball → <em>' . $answers[array_rand($answers)] . '</em></span></p>';
+        return '<span class="quote-text">#8ball → <em>' . $answers[array_rand($answers)] . '</em></span>';
     }
 
     // #NdN dice — e.g. #2d6, #1d20 — must be the only content on the post
@@ -118,12 +118,14 @@ function format_post(string $body, string $board_uri): string {
             for ($i = 0; $i < $num; $i++) $rolls[] = rand(1, $sides);
             $total = array_sum($rolls);
             $roll_str = implode(', ', $rolls);
-            return '<p><span class="quote-text">#' . $num . 'd' . $sides
-                 . ' → [' . $roll_str . '] = <strong>' . $total . '</strong></span></p>';
+            return '<span class="quote-text">#' . $num . 'd' . $sides
+                 . ' → [' . $roll_str . '] = <strong>' . $total . '</strong></span>';
         }
     }
 
-    // Line-by-line formatting
+    // Line-by-line formatting — each line becomes its own <span> separated by <br>.
+    // We do NOT use white-space:pre-wrap + \n because that causes double-spacing
+    // when combined with <br> tags from the previous implementation.
     $lines = explode("\n", h($body));
     $out   = [];
     foreach ($lines as $line) {
@@ -145,7 +147,9 @@ function format_post(string $body, string $board_uri): string {
         $line = preg_replace('/__(.+?)__/', '<em>$1</em>', $line);
         $out[] = $line;
     }
-    return '<p>' . implode('<br>', $out) . '</p>';
+
+    // Join with <br> only — no wrapping <p> tag, no white-space:pre-wrap needed
+    return implode('<br>', $out);
 }
 
 // ── Next board post ID ────────────────────────────────────────
