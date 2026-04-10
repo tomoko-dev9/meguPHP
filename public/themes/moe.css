@@ -1,0 +1,188 @@
+/* ═══════════════════════════════════════════════════════════════
+   moe.css  —  overrides the ocean theme baked into style.css
+   Place at: public/css/themes/moe.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Base ── */
+body {
+    background-color: #eef2ff !important;
+    background-image: none !important;
+    color: #000 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 10pt !important;
+}
+a { color: #34345c !important; }
+a:hover { color: #d00 !important; }
+blockquote a { color: #34345c !important; }
+blockquote a:hover { color: #d00 !important; }
+b { color: #117743 !important; }
+b.admin { color: #f00000 !important; }
+b.moderator { color: purple !important; }
+em { color: #789922 !important; }
+h1 { color: #af0a0f !important; font: bolder 28px Tahoma,sans-serif !important; letter-spacing: -2px !important; text-shadow: none !important; }
+h2 { color: #af0a0f !important; font-family: Tahoma,sans-serif !important; }
+h3 { color: #0f0c5d !important; }
+hr { border-top: 1px solid #b7c5d9 !important; }
+pre { color: #333 !important; }
+
+/* ── Banner ── */
+#banner { background: rgba(214,218,240,0.9) !important; border-bottom: 1px solid #b7c5d9 !important; color: #000 !important; }
+#banner_center { color: #34345c !important; }
+#navTop a { color: #34345c !important; }
+#navTop a:hover { color: #d00 !important; }
+#sync { color: #888 !important; }
+#sync.connected { color: #117743 !important; }
+#sync.error { color: #d00 !important; }
+.bfloat > svg { fill: #34345c !important; }
+#banner_FAQ { color: #34345c !important; }
+
+/* ── Board header ── */
+#board-header h1 { color: #af0a0f !important; }
+
+/* ── Pagination ── */
+.pagination-wrap { color: #34345c !important; }
+nav.pagination a { color: #34345c !important; }
+nav.pagination a:hover { color: #d00 !important; }
+nav.pagination strong { color: #34345c !important; }
+.thread-nav-wrap { color: #34345c !important; }
+.thread-nav-wrap a { color: #34345c !important; }
+.thread-nav-wrap a:hover { color: #d00 !important; }
+
+/* ── OP block ── */
+.op-header .subj { color: #cc1105 !important; }
+.op-header .name { color: #117743 !important; }
+.op-header .trip { color: #34345c !important; }
+.op-header time  { color: #333 !important; }
+.op-body > blockquote { color: #000 !important; }
+
+/* ── Reply articles ── */
+.replies-wrap article,
+#reply-list article {
+    background-color: #d6daf0 !important;
+    border-right: 1px solid #b7c5d9 !important;
+    border-bottom: 1px solid #b7c5d9 !important;
+    border-top: none !important;
+    border-left: none !important;
+    color: #000 !important;
+}
+article.highlight, #reply-list article.highlight { background-color: #d6bad0 !important; border-color: #ba9dbf !important; }
+.reply-header .name { color: #117743 !important; }
+.reply-header .trip { color: #34345c !important; }
+.reply-header time  { color: #333 !important; }
+.replies-wrap article > blockquote,
+#reply-list article > blockquote { color: #000 !important; }
+
+/* ── Backlinks ── */
+.backlinks-op { color: #888 !important; }
+.backlinks-op a { color: #34345c !important; }
+.backlinks-op a:hover { color: #d00 !important; }
+.backlinks { color: #888 !important; }
+.backlinks a { color: #34345c !important; }
+.backlinks a:hover { color: #d00 !important; }
+
+/* ── Post refs / greentext ── */
+.quote-text { color: #789922 !important; }
+.post-ref { color: #34345c !important; }
+.post-ref:hover { color: #d00 !important; }
+
+/* ── Omit ── */
+.omit { color: gray !important; }
+.omit a { color: #34345c !important; }
+
+/* ── Action links ── */
+.expansionLinks a { color: #34345c !important; }
+.expansionLinks a:hover { color: #d00 !important; }
+.act-report a { color: #34345c !important; }
+.act-report a:hover { color: #d00 !important; }
+.act-del a { color: #d00 !important; }
+nav.post-nav a { color: #34345c !important; }
+nav.post-nav a:hover { color: #d00 !important; }
+aside.act.posting a { color: #34345c !important; }
+aside.act.posting a:hover { color: #d00 !important; }
+
+/* ── Image search ── */
+a.imageSearch { color: #34345c !important; }
+a.imageSearch:hover { color: #d00 !important; }
+figure.op-file figcaption, figure.op-file figcaption i { color: #555 !important; }
+figure.op-file figcaption i a { color: #34345c !important; }
+.reply-fileinfo, .reply-fileinfo i { color: #555 !important; }
+.reply-fileinfo i a { color: #34345c !important; }
+
+/* ── Form inputs ── */
+textarea#trans { color: #000 !important; background: #fff !important; border: 1px solid #b7c5d9 !important; }
+input#subject  { color: #000 !important; background: #fff !important; border: 1px solid #b7c5d9 !important; }
+#new-thread-link a { color: #34345c !important; }
+#new-thread-link a:hover { color: #d00 !important; }
+
+/* ── Spoiler ── */
+.spoiler { background: #333 !important; color: #333 !important; }
+.spoiler:hover { color: #fff !important; }
+
+/* ── Modals ── */
+.bmodal, #options-panel, #faq-panel {
+    background-color: #fff !important;
+    border-right: 1px solid #b7c5d9 !important;
+    border-bottom: 1px solid #b7c5d9 !important;
+    color: #333 !important;
+}
+.bmodal hr, #options-panel hr, #faq-panel hr { border-top: 1px solid #b7c5d9 !important; }
+#options-panel b, #faq-panel b { color: #af0a0f !important; }
+#options-panel label { color: #333 !important; }
+#theme-select { background: #fff !important; color: #333 !important; border: 1px solid #b7c5d9 !important; }
+
+/* ── Hover post preview ── */
+#post-preview { background: #fff !important; border: 1px solid #b7c5d9 !important; color: #333 !important; box-shadow: 2px 2px 8px rgba(0,0,0,0.15) !important; }
+#post-preview .pv-header { color: #888 !important; }
+#post-preview .pv-header .name { color: #117743 !important; }
+#post-preview .pv-header time { color: #333 !important; }
+#post-preview .pv-header .post-no { color: #34345c !important; }
+#post-preview .pv-body { color: #333 !important; }
+#post-preview .pv-body .quote-text { color: #789922 !important; }
+#post-preview .pv-body a { color: #34345c !important; }
+
+/* ── Report modal ── */
+#report-modal { background: rgba(0,0,0,0.4) !important; }
+#report-modal-box { background: #fff !important; border: 1px solid #b7c5d9 !important; color: #333 !important; }
+#report-modal-box b { color: #af0a0f !important; }
+#report-modal-box input[type="text"] { background: #fff !important; border: 1px solid #b7c5d9 !important; color: #333 !important; }
+#report-modal-box button { background: #eef2ff !important; border: 1px solid #b7c5d9 !important; color: #34345c !important; }
+#report-modal-box button:hover { border-color: #d00 !important; color: #d00 !important; }
+
+/* ── Ghost typing ── */
+.typing-ghost { background: rgba(214,218,240,0.6) !important; border: 1px dashed #b7c5d9 !important; }
+.typing-ghost .ghost-name { color: #888 !important; }
+.typing-ghost .ghost-body { color: #aaa !important; }
+.typing-ghost .ghost-cursor { background: #aaa !important; }
+
+/* ── Image popup ── */
+#img-popup { border-color: #b7c5d9 !important; background: #fff !important; }
+
+/* ── New post flash ── */
+.new-post-flash { animation: npflash-moe 1.5s ease-out !important; }
+@keyframes npflash-moe {
+    0%   { background-color: rgba(255,255,170,0.8); }
+    100% { background-color: #d6daf0; }
+}
+
+/* ── Index page (index.php) ── */
+.m_box, .m_box_red, .box {
+    background-color: #d6daf0 !important;
+    border-right: 1px solid #b7c5d9 !important;
+    border-bottom: 1px solid #b7c5d9 !important;
+}
+.m_box_bar, .m_box_bar_red, .box_bar {
+    border-bottom: 1px solid #b7c5d9 !important;
+    background: #c8cce8 !important;
+}
+.m_box_bar h2, .box_bar h2 { color: #af0a0f !important; }
+.m_box_bar_red h2 { color: #d00 !important; }
+.m_box p, .m_box_red p, .box p { color: #333 !important; }
+.board-col h3 { color: #0f0c5d !important; }
+.board-col ul li { color: #333 !important; }
+.board-col ul li span { color: #888 !important; }
+.latestPost { color: #333 !important; border-bottom: 1px solid #b7c5d9 !important; }
+.latestPost a { color: #34345c !important; }
+.latestPost a:hover { color: #d00 !important; }
+.indexImageCell img { border: 1px solid #b7c5d9 !important; }
+#fp-stats { color: #888 !important; border-top: 1px solid #b7c5d9 !important; }
+#fp-stats strong { color: #34345c !important; }
