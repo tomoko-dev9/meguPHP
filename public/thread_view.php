@@ -592,6 +592,7 @@ function tv_reply_thumb(array $post, string $board_uri): string {
             data-pid="<?= $thread_id ?>"
             data-thumb="<?= !empty($op['thumb_name']) ? h(UPLOAD_URL . $board_uri . '/' . $op['thumb_name']) : '' ?>"
         ><?= format_post($op['body'], $board_uri) ?></blockquote>
+        <div class="backlinks" id="bl-<?= $thread_id ?>"></div>
     </div>
 </div>
 
@@ -895,8 +896,14 @@ function tv_reply_thumb(array $post, string $board_uri): string {
         bl.appendChild(document.createTextNode(' '));
     }
     document.querySelectorAll('#reply-list article blockquote, .op-body blockquote').forEach(function (bq) {
-        var art     = bq.closest('article');
-        var fromPid = art ? art.id.replace('p', '') : null;
+        var fromPid;
+        var art = bq.closest('article');
+        if (art) {
+            fromPid = art.id.replace(/^p/, '');
+        } else {
+            // OP blockquote — get pid from data attribute
+            fromPid = bq.getAttribute('data-pid');
+        }
         if (!fromPid) return;
         bq.querySelectorAll('a.post-ref').forEach(function (a) {
             var m = a.href.match(/#p(\d+)$/);
