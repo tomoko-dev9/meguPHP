@@ -310,6 +310,54 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     .backlinks a { color: #8a8ff7; text-decoration: none; margin-right: 3px; }
     .backlinks a:hover { color: #af005f; }
 
+    /* ── Ghost typing indicators ── */
+    .typing-wrap {
+        margin: 2px 0 0 18px;
+        clear: both;
+    }
+    .typing-ghost {
+        display: block;
+        overflow: hidden;
+        background: rgba(28,29,34,0.45);
+        border: 1px dashed #2a4a52;
+        margin: 2px 0;
+        padding: 3px 6px 4px 6px;
+        width: fit-content;
+        max-width: calc(100% - 18px);
+        opacity: 0.7;
+        animation: ghost-fade-in 0.3s ease;
+    }
+    @keyframes ghost-fade-in {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 0.7; }
+    }
+    .typing-ghost .ghost-name {
+        font-size: 9pt;
+        color: #4a7a8a;
+        font-weight: bold;
+        margin-bottom: 2px;
+    }
+    .typing-ghost .ghost-body {
+        font-size: 9pt;
+        color: #2e6a7a;
+        word-break: break-word;
+        white-space: pre-wrap;
+        line-height: 1.5;
+    }
+    .typing-ghost .ghost-cursor {
+        display: inline-block;
+        width: 7px;
+        height: 1em;
+        background: #2e6a7a;
+        margin-left: 1px;
+        vertical-align: text-bottom;
+        animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0; }
+    }
+
     /* ══════════════════════════════════════════════════════
        TEXT COLOURS
     ══════════════════════════════════════════════════════ */
@@ -583,6 +631,7 @@ function tv_reply_thumb(array $post, string $board_uri): string {
 </article>
 <?php endforeach; ?>
 </div><!-- /#reply-list -->
+<div class="typing-wrap" id="typing-wrap"></div>
 
 <?php if (!$locked || is_admin()): ?>
 <aside class="act posting"><a href="#" id="bottom-reply">[Reply]</a></aside>
@@ -976,6 +1025,59 @@ function tv_reply_thumb(array $post, string $board_uri): string {
         knownIds.add(el.id.replace(/^p/, ''));
     });
 
+    /* ── Typing indicator — send ── */
+    var typingWrap    = document.getElementById('typing-wrap');
+    var typingTimer   = null;
+    var lastSentBody  = null;
+
+    function sendTyping(body) {
+        if (body === lastSentBody) return;
+        lastSentBody = body;
+        var fd = new FormData();
+        fd.append('board',     board);
+        fd.append('thread_id', threadId);
+        fd.append('body',      body);
+        fd.append('name',      (identName ? identName.value : '') || 'Anonymous');
+        fetch(baseUrl + board + '/typing.php', { method: 'POST', body: fd }).catch(function(){});
+    }
+
+    if (transTA) {
+        transTA.addEventListener('input', function () {
+            clearTimeout(typingTimer);
+            var val = transTA.value.trim();
+            if (!val) { sendTyping(''); return; }
+            // Debounce: send after 300ms pause in typing
+            typingTimer = setTimeout(function () { sendTyping(val); }, 300);
+        });
+        // Clear on submit or cancel
+        function clearTyping() { clearTimeout(typingTimer); sendTyping(''); lastSentBody = null; }
+        if (replyForm)   replyForm.addEventListener('submit', clearTyping);
+        if (toggleBtn)   toggleBtn.addEventListener('click',  clearTyping);
+        if (formCancel)  formCancel.addEventListener('click',  clearTyping);
+    }
+
+    /* ── Typing indicator — receive ── */
+    function renderTyping(typists) {
+        if (!typingWrap) return;
+        typingWrap.innerHTML = '';
+        typists.forEach(function (t) {
+            var ghost = document.createElement('div');
+            ghost.className = 'typing-ghost';
+            var nameEl = document.createElement('div');
+            nameEl.className = 'ghost-name';
+            nameEl.textContent = (t.name || 'Anonymous') + ' is typing…';
+            var bodyEl = document.createElement('div');
+            bodyEl.className = 'ghost-body';
+            bodyEl.textContent = t.body;
+            var cursor = document.createElement('span');
+            cursor.className = 'ghost-cursor';
+            bodyEl.appendChild(cursor);
+            ghost.appendChild(nameEl);
+            ghost.appendChild(bodyEl);
+            typingWrap.appendChild(ghost);
+        });
+    }
+
     /* ── Live SSE ── */
     function connect() {
         syncEl.textContent = 'Connecting...'; syncEl.className = 'bfloat';
@@ -997,6 +1099,9 @@ function tv_reply_thumb(array $post, string $board_uri): string {
             });
             if (document.hidden) { unread++; updateTitle(); }
             else el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+        es.addEventListener('typing', function (e) {
+            try { renderTyping(JSON.parse(e.data)); } catch(ex) {}
         });
         es.addEventListener('open',  function () { syncEl.textContent = 'Synched';        syncEl.className = 'bfloat connected'; });
         es.addEventListener('error', function () { syncEl.textContent = 'Reconnecting...'; syncEl.className = 'bfloat error'; es.close(); setTimeout(connect, 3000); });
