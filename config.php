@@ -4,8 +4,8 @@
 // ============================================================
 
 define('DB_HOST', 'localhost');
-define('DB_USER', 'lol');
-define('DB_PASS', 'password');
+define('DB_USER', 'db_user');
+define('DB_PASS', 'your_password');
 define('DB_NAME', 'imageboard');
 
 define('SITE_TITLE',    'MeguPHP');
@@ -17,7 +17,7 @@ define('SITE_EMAIL',    'admin@example.com');
 // and the site served from the root domain:
 //   http://yoursite.com/     →  'http://yoursite.com/'
 //   http://yoursite.com/imageboard/ →  'http://yoursite.com/imageboard/'
-define('BASE_URL',   'https://kernel.forum/');          // ← trailing slash, edit this
+define('BASE_URL',   '/');          // ← trailing slash, edit this
 
 define('UPLOAD_DIR', __DIR__ . '/public/uploads/'); // filesystem path — do not change
 define('UPLOAD_URL', BASE_URL . 'public/uploads/'); // URL to uploads folder
