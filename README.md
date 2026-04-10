@@ -1,4 +1,4 @@
-# PHP Imageboard with Live Posting
+# meguPHP
 
 A PHP + MySQL imageboard with real-time post delivery via Server-Sent Events (SSE),
 styled after the doushio theme.
