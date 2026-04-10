@@ -243,10 +243,9 @@ function tv_reply_thumb(array $post, string $board_uri): string {
 
     .op-body > blockquote {
         margin: 4px 0 0 0;
-        white-space: pre-wrap; word-break: break-word;
+        word-break: break-word;
         color: #389eb6; line-height: 1.5;
     }
-    .op-body > blockquote p { margin: 0; padding: 0; }
 
     /* ══════════════════════════════════════════════════════
        REPLY FILE INFO — OUTSIDE/ABOVE the article box
@@ -302,10 +301,9 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     #reply-list article > blockquote {
         overflow: hidden;
         margin: 2px 0 0 0;
-        white-space: pre-wrap; word-break: break-word;
+        word-break: break-word;
         color: #389eb6; line-height: 1.5;
     }
-    #reply-list article > blockquote p { margin: 0; padding: 0; }
 
     /* Backlinks */
     .backlinks { font-size: 8pt; color: #626262; margin: 2px 0 0 0; clear: both; }
@@ -371,7 +369,7 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     #post-preview .pv-thumb { float: left; margin: 0 8px 4px 0; }
     #post-preview .pv-thumb img { max-width: 80px; max-height: 80px; display: block; }
     #post-preview .pv-body {
-        overflow: hidden; white-space: pre-wrap; word-break: break-word;
+        overflow: hidden; word-break: break-word;
         color: #389eb6; line-height: 1.5; max-height: 200px; overflow-y: auto;
     }
     #post-preview .pv-body p { margin: 0; }
@@ -520,7 +518,7 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     <div class="reply-header">
         <input type="checkbox" class="postCheckbox">
         <b class="name"><?= $rname ?></b>
-        <?php if ($rtrip): ?><code class="trip"><?= $rtrip ?></code><?php endif; ?>
+        <?php if ($rtrip): ?><code class="trip"><?= $rtrip ?></code><?php endif; ?><?= capcode_html($r['capcode'] ?? null) ?>
         <time datetime="<?= $riso ?>"><?= $rdate ?></time>
         <nav class="post-nav">
             <a href="#p<?= $rid ?>" class="quote" data-pid="<?= $rid ?>">No.</a><a href="#p<?= $rid ?>"><?= $rid ?></a>
@@ -826,6 +824,14 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     function updateTitle() { document.title = unread > 0 ? '(' + unread + ') ' + origTitle : origTitle; }
     document.addEventListener('visibilitychange', function () { if (!document.hidden) { unread = 0; updateTitle(); } });
 
+    /* ── FIX: Seed known post IDs from server-rendered HTML before SSE connects.
+       This prevents the flash animation from firing on posts that were already
+       present in the page on load / after a form submit redirect. ── */
+    var knownIds = new Set();
+    document.querySelectorAll('#reply-list article[id]').forEach(function (el) {
+        knownIds.add(el.id.replace(/^p/, ''));
+    });
+
     /* ── Live SSE ── */
     function connect() {
         syncEl.textContent = 'Connecting...'; syncEl.className = 'bfloat';
@@ -834,7 +840,9 @@ function tv_reply_thumb(array $post, string $board_uri): string {
             var d = JSON.parse(e.data);
             lastId = Math.max(lastId, d.live_event_id || 0);
             var list = document.getElementById('reply-list');
-            if (!list || document.getElementById('p' + d.post_id)) return;
+            /* FIX: use knownIds Set instead of getElementById to detect duplicates */
+            if (!list || knownIds.has(String(d.post_id))) return;
+            knownIds.add(String(d.post_id));
             var div = document.createElement('div'); div.innerHTML = d.post_html;
             var el = div.firstElementChild; if (!el) return;
             el.classList.add('new-post-flash');
