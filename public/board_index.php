@@ -1123,13 +1123,21 @@ function idx_reply_thumb(array $post, string $board_uri): string {
         reportStatus.textContent = '';
         var fd = new FormData();
         fd.append('reason', reason);
-        fetch(baseUrl + 'report.php?board=' + encodeURIComponent(_reportBoard) + '&post=' + _reportPost, {
+        fetch(baseUrl + _reportBoard + '/report/' + _reportPost, {
             method: 'POST', body: fd
-        }).then(function () {
-            reportStatus.style.color = '#12bd7c';
-            reportStatus.textContent = 'Report submitted.';
-            setTimeout(function () { reportModal.style.display = 'none'; reportStatus.style.color = ''; }, 1200);
+        }).then(function (r) {
+            return r.json().then(function (data) {
+                if (!r.ok || data.error) {
+                    reportStatus.style.color = '#af005f';
+                    reportStatus.textContent = data.error || 'Error submitting report.';
+                } else {
+                    reportStatus.style.color = '#12bd7c';
+                    reportStatus.textContent = 'Report submitted.';
+                    setTimeout(function () { reportModal.style.display = 'none'; reportStatus.style.color = ''; }, 1200);
+                }
+            });
         }).catch(function () {
+            reportStatus.style.color = '#af005f';
             reportStatus.textContent = 'Error submitting report.';
         }).finally(function () { reportSubmitBtn.disabled = false; });
     });
