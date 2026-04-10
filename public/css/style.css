@@ -345,9 +345,9 @@ a:hover {
 }
 
 .pagination,.preview,article,aside {
-    background-color: rgba(28,29,34,.78);
-    border-right: 1px solid #262626;
-    border-bottom: 1px solid #262626
+    background-color: rgb(28 29 34 / 0%);
+    border-right: 1px solid #26262600;
+    border-bottom: 1px solid #26262600;
 }
 
 article.highlight {
