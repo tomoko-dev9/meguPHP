@@ -107,8 +107,8 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     <meta charset="utf-8">
     <title><?= $title ?></title>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
-    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/base.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>css/base.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>css/style.css">
     <link rel="stylesheet" id="theme">
     <style id="backgroundCSS"></style>
     <style>
@@ -120,7 +120,7 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     body {
         color: #389eb6;
         background-color: #1e1e1e;
-        background-image: url(<?= BASE_URL ?>public/css/oceanKoi.png);
+        background-image: url(<?= BASE_URL ?>css/oceanKoi.png);
         background-repeat: no-repeat;
         background-attachment: fixed;
         background-position: right bottom;
@@ -306,8 +306,9 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     }
 
     /* Backlinks */
-    .backlinks { font-size: 8pt; color: #626262; margin: 2px 0 0 0; clear: both; }
-    .backlinks a { color: #8a8ff7; text-decoration: none; margin-right: 3px; }
+    .backlinks { font-size: 9pt; color: #626262; margin: 4px 0 0 0; clear: both; }
+    .backlinks:not(:empty)::before { content: "Replies: "; color: #626262; }
+    .backlinks a { color: #8a8ff7; text-decoration: none; margin-right: 4px; }
     .backlinks a:hover { color: #af005f; }
 
     /* ── Ghost typing indicators ── */
@@ -426,7 +427,7 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     form.post-bottom input[type="button"],
     form.post-bottom input[type="submit"] { font-size: 9pt; cursor: pointer; margin-right: 4px; }
     input#toggle {
-        background: url('<?= BASE_URL ?>public/css/ui/pane.png') transparent no-repeat center center;
+        background: url('<?= BASE_URL ?>css/ui/pane.png') transparent no-repeat center center;
         background-size: 78px 19px; border: 0; height: 19px; width: 78px;
         cursor: pointer; vertical-align: middle;
     }
@@ -922,8 +923,8 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     /* ── Theme ── */
     var themeLink   = document.getElementById('theme');
     var themeSelect = document.getElementById('theme-select');
-    var savedTheme  = localStorage.getItem('theme') || 'ocean';
-    function applyTheme(t) { if (themeLink) themeLink.href = baseUrl + 'public/css/themes/' + t + '.css'; }
+    var savedTheme = localStorage.getItem('theme') || 'ocean';
+    function applyTheme(t) { if (themeLink) themeLink.href = baseUrl + 'css/themes/' + t + '.css'; }
     applyTheme(savedTheme);
     if (themeSelect) {
         themeSelect.value = savedTheme;
