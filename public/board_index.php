@@ -311,12 +311,10 @@ function idx_reply_thumb(array $post, string $board_uri): string {
 
     .op-body > blockquote {
         margin: 2px 0 0 0;
-        white-space: pre-wrap;
         word-break: break-word;
         color: #389eb6;
         line-height: 1.5;
     }
-    .op-body > blockquote p { margin: 0; padding: 0; }
 
     .backlinks-op {
         display: block;
@@ -396,12 +394,10 @@ function idx_reply_thumb(array $post, string $board_uri): string {
     .replies-wrap article > blockquote {
         overflow: hidden;
         margin: 2px 0 0 0;
-        white-space: pre-wrap;
         word-break: break-word;
         color: #389eb6;
         line-height: 1.5;
     }
-    .replies-wrap article > blockquote p { margin: 0; padding: 0; }
 
     /* Omitted posts notice */
     .omit {
@@ -514,7 +510,6 @@ function idx_reply_thumb(array $post, string $board_uri): string {
     #post-preview .pv-thumb img { max-width: 80px; max-height: 80px; display: block; }
     #post-preview .pv-body {
         overflow: hidden;
-        white-space: pre-wrap;
         word-break: break-word;
         color: #389eb6;
         line-height: 1.5;
@@ -522,7 +517,6 @@ function idx_reply_thumb(array $post, string $board_uri): string {
         overflow-y: auto;
     }
     #post-preview .pv-body p { margin: 0; }
-    #post-preview .pv-body .quote-text { color: #789922; }
     #post-preview .pv-body a { color: #8a8ff7; text-decoration: none; }
     #post-preview::after { content: ""; display: table; clear: both; }
 
@@ -1008,6 +1002,14 @@ function idx_reply_thumb(array $post, string $board_uri): string {
         optPrevEl.addEventListener('change', function () { localStorage.setItem('opt-previews', this.checked ? '1' : '0'); });
     }
 
+    /* ── FIX: Seed known post IDs from server-rendered HTML before SSE connects.
+       This prevents the flash animation from firing on posts that were already
+       present in the page on load / after a form submit redirect. ── */
+    var knownIds = new Set();
+    document.querySelectorAll('.replies-wrap article[id]').forEach(function (el) {
+        knownIds.add(el.id);
+    });
+
     /* ── Live SSE ── */
     function connect() {
         syncEl.textContent = 'Connecting...'; syncEl.className = 'bfloat';
@@ -1016,7 +1018,9 @@ function idx_reply_thumb(array $post, string $board_uri): string {
             var d = JSON.parse(e.data); lastId = Math.max(lastId, d.live_event_id || 0);
             var rw = document.getElementById('rw-' + d.thread_id); if (!rw) return;
             var aside = rw.querySelector('aside.posting');
-            if (document.getElementById(String(d.post_id))) return;
+            /* FIX: use knownIds Set instead of getElementById to detect duplicates */
+            if (knownIds.has(String(d.post_id))) return;
+            knownIds.add(String(d.post_id));
             var tmp = document.createElement('div'); tmp.innerHTML = d.post_html;
             var el = tmp.firstElementChild; if (!el) return;
             el.classList.add('new-post-flash');
