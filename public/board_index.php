@@ -838,24 +838,64 @@ function idx_reply_thumb(array $post, string $board_uri): string {
         newForm.submit();
     });
 
-    /* ── Image expand (click to toggle full size) ── */
-    document.addEventListener('click', function (e) {
-        var link = e.target.closest('figure > a[rel="nofollow"]'); if (!link) return;
-        var img  = link.querySelector('img'); if (!img) return;
-        e.preventDefault();
-        if (link.getAttribute('data-expanded') === '1') {
-            img.src = img.getAttribute('data-thumb') || img.src;
-            img.style.maxWidth = img.style.maxHeight = '';
-            img.style.width = img.style.height = '';
-            link.setAttribute('data-expanded', '0');
-        } else {
-            img.setAttribute('data-thumb', img.src);
-            img.src = link.href;
-            img.style.maxWidth  = '100%';
-            img.style.maxHeight = 'none';
-            img.style.width = img.style.height = 'auto';
-            link.setAttribute('data-expanded', '1');
-        }
+    /* ── Image hover popup ── */
+    var imgPopup = document.createElement('div');
+    imgPopup.id = 'img-popup';
+    imgPopup.style.cssText = 'display:none;position:fixed;z-index:13000;pointer-events:none;'
+        + 'max-width:90vw;max-height:90vh;border:1px solid #389eb6;'
+        + 'box-shadow:0 4px 24px rgba(0,0,0,0.8);background:#111;';
+    var imgPopupImg = document.createElement('img');
+    imgPopupImg.style.cssText = 'display:block;max-width:90vw;max-height:90vh;';
+    imgPopup.appendChild(imgPopupImg);
+    document.body.appendChild(imgPopup);
+
+    function positionPopup(mx, my) {
+        var pw = imgPopup.offsetWidth  || 0;
+        var ph = imgPopup.offsetHeight || 0;
+        var vw = window.innerWidth, vh = window.innerHeight;
+        var left = mx + 20;
+        var top  = my + 10;
+        if (left + pw > vw - 8) left = mx - pw - 10;
+        if (top  + ph > vh - 8) top  = vh - ph - 8;
+        if (left < 4) left = 4;
+        if (top  < 4) top  = 4;
+        imgPopup.style.left = left + 'px';
+        imgPopup.style.top  = top  + 'px';
+    }
+
+    function showPopup(fullSrc, mx, my) {
+        imgPopupImg.src = fullSrc;
+        imgPopup.style.display = 'block';
+        positionPopup(mx, my);
+    }
+
+    function hidePopup() {
+        imgPopup.style.display = 'none';
+        imgPopupImg.src = '';
+    }
+
+    document.addEventListener('mouseover', function (e) {
+        var t = e.target;
+        if (t.tagName !== 'IMG') return;
+        var fig = t.closest('figure');
+        if (!fig) return;
+        var a = t.parentElement;
+        if (!a || a.tagName !== 'A' || !a.href) return;
+        t.style.cursor = 'zoom-in';
+        showPopup(a.href, e.clientX, e.clientY);
+    });
+
+    document.addEventListener('mousemove', function (e) {
+        if (imgPopup.style.display === 'none') return;
+        var t = e.target;
+        if (t.tagName !== 'IMG' || !t.closest('figure')) { hidePopup(); return; }
+        positionPopup(e.clientX, e.clientY);
+    });
+
+    document.addEventListener('mouseout', function (e) {
+        var t = e.target;
+        if (t.tagName !== 'IMG' || !t.closest('figure')) return;
+        hidePopup();
     });
 
     /* ── Hover preview ── */
