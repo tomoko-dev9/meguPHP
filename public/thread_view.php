@@ -142,6 +142,20 @@ function tv_reply_thumb(array $post, string $board_uri): string {
     pre { color: #8a8a8a; font-size: 10pt; }
     .spoiler { background: #000; color: #000; }
     .spoiler:hover { color: #fff; }
+    .spoiler-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        font-size: 9pt;
+        color: #8a8a8a;
+        vertical-align: middle;
+        margin-right: 4px;
+    }
+    .spoiler-label input[type="checkbox"] { cursor: pointer; vertical-align: middle; }
+    .spoiler-btn { width: 20px; height: 20px; vertical-align: middle; opacity: 0.7; }
+    .spoiler-label:hover .spoiler-btn { opacity: 1; }
+    .spoiler-label input[type="checkbox"]:checked + .spoiler-btn { opacity: 1; outline: 2px solid #af005f; }
     :target { outline: 2px solid #f0a000; outline-offset: 2px; }
     .new-post-flash { animation: npflash 1.5s ease-out; }
     @keyframes npflash {
@@ -652,7 +666,11 @@ function tv_reply_thumb(array $post, string $board_uri): string {
         <input type="hidden" name="email"     id="pf-email">
         <input type="hidden" name="body"      id="pf-body">
         <input type="button" value="Cancel"   id="form-cancel">
-        <input type="file"   name="image"     accept="image/jpeg,image/png,image/gif,image/webp">
+        <input type="file"   name="image"     accept="image/jpeg,image/png,image/gif,image/webp" id="file-input">
+        <label class="spoiler-label" id="spoiler-label" style="display:none;" title="Mark image as spoiler">
+            <input type="checkbox" name="spoiler" id="spoiler-check">
+            <img src="<?= BASE_URL ?>static/spoiler.png" class="spoiler-btn" alt="Spoiler"> Spoiler
+        </label>
         <input type="button" id="toggle"      title="Post">
         <strong id="form-status"></strong>
     </form>
@@ -762,6 +780,17 @@ function tv_reply_thumb(array $post, string $board_uri): string {
         formOpen = false;
     }
 
+
+    /* ── Spoiler image checkbox — show only when file selected ── */
+    var fileInput    = document.getElementById('file-input');
+    var spoilerLabel = document.getElementById('spoiler-label');
+    var spoilerCheck = document.getElementById('spoiler-check');
+    if (fileInput && spoilerLabel) {
+        fileInput.addEventListener('change', function () {
+            spoilerLabel.style.display = this.files.length > 0 ? 'inline-flex' : 'none';
+            if (this.files.length === 0 && spoilerCheck) spoilerCheck.checked = false;
+        });
+    }
     if (formCancel)  formCancel.addEventListener('click',  closeForm);
     if (bottomReply) bottomReply.addEventListener('click', function (e) { e.preventDefault(); openForm(null); });
 
@@ -1061,7 +1090,18 @@ function tv_reply_thumb(array $post, string $board_uri): string {
         function clearTyping() { clearTimeout(typingTimer); sendTyping(''); lastSentBody = null; }
         if (replyForm)   replyForm.addEventListener('submit', clearTyping);
         if (toggleBtn)   toggleBtn.addEventListener('click',  clearTyping);
-        if (formCancel)  formCancel.addEventListener('click',  clearTyping);
+    
+    /* ── Spoiler image checkbox — show only when file selected ── */
+    var fileInput    = document.getElementById('file-input');
+    var spoilerLabel = document.getElementById('spoiler-label');
+    var spoilerCheck = document.getElementById('spoiler-check');
+    if (fileInput && spoilerLabel) {
+        fileInput.addEventListener('change', function () {
+            spoilerLabel.style.display = this.files.length > 0 ? 'inline-flex' : 'none';
+            if (this.files.length === 0 && spoilerCheck) spoilerCheck.checked = false;
+        });
+    }
+    if (formCancel)  formCancel.addEventListener('click',  clearTyping);
     }
 
     /* ── Typing indicator — receive ── */
