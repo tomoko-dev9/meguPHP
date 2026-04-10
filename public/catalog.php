@@ -54,29 +54,75 @@ session_write_close();
     <link rel="stylesheet" href="<?= BASE_URL ?>css/style.css">
     <link rel="stylesheet" id="theme">
     <style>
-        /* ── moe base ── */
+        /* ══════════════════════════════════════════
+           OCEAN THEME — catalog.php
+           ══════════════════════════════════════════ */
+
+        /* ── Reset / Base ── */
+        * { box-sizing: border-box; }
+
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             font-size: 10pt;
-            color: #000;
-            background-color: #eef2ff;
-            background-image: none;
-            margin: 0; padding: 0;
-        }
-        a { color: #34345c; text-decoration: none; }
-        a:hover { color: #d00; }
-        b { color: #117743; }
-        b.admin { color: #f00000; }
-        b.moderator { color: purple; }
-        em { color: #789922; }
-        hr { border: 0; border-top: 1px solid #b7c5d9; margin: 4px 0; }
-        h1 {
-            color: #af0a0f;
-            font: bolder 28px Tahoma, sans-serif;
-            letter-spacing: -2px;
-            text-shadow: none;
+            color: #389EB6;
+            background-color: #1e1e1e;
+            background-image: url(<?= BASE_URL ?>css/themes/oceanKoi.png);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: right bottom;
             margin: 0;
+            padding: 0;
         }
+
+        /* ── Links ── */
+        a {
+            color: #B5C8FF;
+            text-decoration: none;
+            border: none;
+        }
+        a:hover { color: #af005f; }
+        a.referenced {
+            text-decoration: none;
+            border-bottom: 1px dashed currentColor;
+        }
+        blockquote a { color: #8A8FF7; }
+
+        /* ── Headings ── */
+        h1, h2 {
+            color: #357EDD;
+            text-align: center;
+        }
+        h1 {
+            font-family: "MS PGothic", "MS Pゴシック", Mona, "Hiragino Kaku Gothic Pro", Helvetica, sans-serif;
+            font-size: 30px;
+            text-shadow: #074854 1px 1px 0;
+            letter-spacing: 1px;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        h2 { font-family: Tahoma; }
+        h3 {
+            color: #163FAB;
+            display: inline;
+            font-size: inherit;
+        }
+
+        /* ── Misc typography ── */
+        b { color: lightblue; }
+        b.admin { color: #15CFFA; }
+        b.moderator { color: #5f5faf; }
+        em {
+            color: #12BD7C;
+            font-style: normal;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #2e2e2e;
+            clear: both;
+            margin: 4px 0;
+        }
+        .email { color: #99225c; text-decoration: underline !important; }
+        .omit { color: #626262; line-height: 200%; }
 
         /* ── Banner bar ── */
         #banner {
@@ -84,72 +130,139 @@ session_write_close();
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            box-sizing: border-box;
             padding: 3px 8px;
             font-size: 9pt;
-            background: rgba(214,218,240,0.9);
-            border-bottom: 1px solid #b7c5d9;
-            color: #000;
+            background: rgba(46, 46, 46, 0.7);
+            border-bottom: 1px solid #262626;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            -webkit-backface-visibility: hidden;
+            -webkit-transform: translateZ(0);
+            box-shadow: 3px 3px 3px 0 rgba(0,0,0,0.5);
         }
-        #navTop { flex: 0 0 auto; }
-        #navTop a { color: #34345c; }
-        #navTop a:hover { color: #d00; }
-        #banner_center { flex: 1 1 auto; text-align: center; color: #34345c; }
-        .bfloat-group { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
-        .bfloat { cursor: pointer; }
-        .bfloat svg { fill: #34345c; vertical-align: middle; }
-        .bfloat:hover svg { fill: #d00; }
-        #sync { color: #888; font-size: 8.5pt; }
-        #sync.connected { color: #117743; }
-        #sync.error { color: #d00; }
-        #onlineCount { color: #888; font-size: 8.5pt; }
-        #banner_FAQ { color: #34345c !important; }
+        #navTop {
+            flex: 0 0 auto;
+            font-weight: bold;
+        }
+        #navTop a { color: #B5C8FF; }
+        #navTop a:hover { color: #af005f; }
+        #banner_center {
+            flex: 1 1 auto;
+            text-align: center;
+            color: #389EB6;
+        }
+        .bfloat-group {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bfloat { cursor: pointer; font-weight: bold; }
+        .bfloat > svg { fill: #64C0E8; width: 1em; height: 1em; vertical-align: middle; }
+        .bfloat:hover > svg { fill: #af005f; }
+        #sync { color: #626262; font-size: 8.5pt; cursor: auto; }
+        #sync.connected { color: #12BD7C; }
+        #sync.error { color: #af005f; }
+        #onlineCount { color: #626262; font-size: 8.5pt; cursor: auto; }
 
-        /* ── Board header ── */
-        #board-header { text-align: center; margin: 8px 0 4px 0; }
-        #board-header img { display: block; margin: 0 auto 4px auto; max-width: 400px; }
+        /* ── Modals ── */
+        .bmodal {
+            display: none;
+            position: fixed;
+            top: 30px;
+            right: 0;
+            z-index: 200;
+            background-color: #262626;
+            border-right: 1px solid #212121;
+            border-bottom: 1px solid #212121;
+            padding: 1em;
+            font-size: 9pt;
+            color: #389EB6;
+            overflow: auto;
+            max-height: 80%;
+            max-width: 80%;
+            -webkit-backface-visibility: hidden;
+            box-shadow: 3px 3px 3px 0 rgba(0,0,0,0.5);
+        }
+        .bmodal b { color: lightblue; display: block; margin-bottom: 8px; }
+        .bmodal hr { border-top: 1px solid #99225c; }
+        .bmodal label { display: block; margin-bottom: 4px; color: #389EB6; }
+        .bmodal select {
+            background: #1e1e1e;
+            color: #389EB6;
+            border: 1px solid #2e2e2e;
+            margin-left: 4px;
+        }
+        #identity { right: 40px; }
+        #faq-panel { right: 80px; max-width: 340px; line-height: 1.7; }
+        #options-panel { min-width: 200px; }
+
+        /* ── Articles / aside ── */
+        article, aside {
+            background-color: rgba(28, 29, 34, 0.78);
+            border-right: 1px solid #262626;
+            border-bottom: 1px solid #262626;
+            display: table;
+            padding: 4px 10px;
+        }
+        article {
+            margin: 2px;
+        }
+        article.highlight {
+            background-color: rgba(44, 44, 51, 0.95);
+            border-color: #21212c;
+        }
+        aside {
+            margin: 1em;
+        }
+        aside.compact { margin: 0 1em; }
+        aside a { color: #B5C8FF; position: relative; z-index: 15; }
+        aside a:hover { color: #af005f; }
 
         /* ── Thread nav ── */
         threads h1 {
-            font-family: Tahoma, sans-serif;
             font-size: 1.4em;
-            color: #af0a0f;
             text-align: center;
             margin: 8px 0 2px 0;
         }
         aside.act.compact {
             text-align: center;
             font-size: 9pt;
-            margin: 2px 0;
-            color: #34345c;
+            display: table;
+            margin: 2px auto;
         }
-        aside.act.compact a { color: #34345c; }
-        aside.act.compact a:hover { color: #d00; }
+        .act:before { content: "["; }
+        .act:after  { content: "]"; }
 
         /* ── Catalog grid ── */
         #catalog {
+            margin: 0 0.85em;
             display: flex;
             flex-wrap: wrap;
-            gap: 0;
-            padding: 4px 8px;
+            padding: 4px 0;
         }
         #catalog article {
-            width: 160px;
-            vertical-align: top;
+            width: 165px;
+            max-height: 320px;
             display: inline-block;
-            font-size: 8.5pt;
-            padding: 6px 4px 8px 4px;
-            box-sizing: border-box;
-            background: transparent;
-            border: 1px solid transparent;
-            transition: border-color .15s;
-            position: relative;
+            text-align: center;
+            word-wrap: break-word;
+            overflow: hidden;
+            vertical-align: top;
+            padding: 0.6em;
+            margin: 0.15em;
+            transition: background-color .15s, border-color .15s;
         }
         #catalog article:hover {
-            border-color: #b7c5d9;
-            background: rgba(214,218,240,0.5);
+            background-color: rgba(44, 44, 51, 0.95);
+            border-color: #21212c;
         }
-        #catalog article > a { display: block; text-align: left; }
+        #catalog article > a {
+            display: block;
+            text-align: center;
+        }
         #catalog article img.expanded {
             display: block;
             max-width: 150px;
@@ -157,9 +270,9 @@ session_write_close();
             width: auto;
             height: auto;
             object-fit: contain;
-            margin-bottom: 3px;
-            background: #d6daf0;
-            border: 1px solid #b7c5d9;
+            margin: 0 auto 3px auto;
+            background: rgba(28,29,34,0.5);
+            border: 1px solid #2e2e2e;
         }
         .cat-no-thumb {
             width: 150px;
@@ -167,33 +280,36 @@ session_write_close();
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #d6daf0;
-            border: 1px solid #b7c5d9;
-            color: #888;
+            background: rgba(28,29,34,0.5);
+            border: 1px solid #2e2e2e;
+            color: #626262;
             font-size: 8pt;
-            margin-bottom: 3px;
+            margin: 0 auto 3px auto;
         }
         #catalog article small {
-            display: block;
-            color: #34345c;
+            clear: none;
+            display: inline-block;
+            color: #389EB6;
             font-size: 8pt;
             margin-bottom: 2px;
             line-height: 1.4;
         }
-        #catalog article small .act.expansionLinks a { color: #34345c; }
-        #catalog article small .act.expansionLinks a:hover { color: #d00; }
+        #catalog article small span:first-child { margin-right: 0.2em; }
+        #catalog article small .act.expansionLinks a { color: #B5C8FF; }
+        #catalog article small .act.expansionLinks a:hover { color: #af005f; }
         #catalog article h3 {
             font-size: 8.5pt;
             font-weight: bold;
-            color: #0f0c5d;
+            color: #163FAB;
             margin: 2px 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 152px;
+            display: block;
         }
         #catalog article .cat-snippet {
-            color: #555;
+            color: #389EB6;
             font-size: 7.5pt;
             display: -webkit-box;
             -webkit-line-clamp: 4;
@@ -201,57 +317,106 @@ session_write_close();
             overflow: hidden;
             word-break: break-word;
             max-width: 152px;
+            text-align: left;
         }
-        .cat-sticky-pin { color: #af0a0f; font-size: 7.5pt; }
+        .cat-sticky-pin { color: #357EDD; font-size: 7.5pt; }
 
-        /* ── Admin banner upload ── */
-        #banner-upload-toggle { display: inline-block; margin: 4px 8px; font-size: 9pt; cursor: pointer; }
+        /* ── Top margin spacer ── */
+        #headerTopMargin { width: 100%; height: 1.8em; }
+
+        /* ── Options panel tabs ── */
+        .option_tab_sel {
+            display: inline;
+            -webkit-padding-start: 0;
+            padding: 0;
+        }
+        .option_tab_sel li { list-style-type: none; float: left; }
+        .option_tab_sel a {
+            display: inline-block;
+            padding: 7px;
+            border-bottom: 1px solid #2e2e2e;
+            color: #B5C8FF;
+        }
+        .option_tab_sel a.tab_sel { color: #8B3FB1; }
+        .option_tab_cont {
+            padding-top: 10px;
+            padding-left: 5px;
+            margin-bottom: 0;
+        }
+        .option_tab_cont li {
+            display: none;
+            float: left;
+            padding-top: 5px;
+            width: 100%;
+        }
+        .option_tab_cont li label { padding-left: 0.2em; color: #389EB6; }
+        .option_tab_cont li.tab_sel { display: inline-block; }
+
+        /* ── Banner upload (admin) ── */
+        #banner-upload-toggle {
+            display: inline-block;
+            margin: 4px 8px;
+            font-size: 9pt;
+            cursor: pointer;
+            color: #B5C8FF;
+        }
+        #banner-upload-toggle:hover { color: #af005f; }
         #banner-upload-panel {
             display: none;
             margin: 4px 8px 8px 8px;
-            background: #fff;
-            border: 1px solid #b7c5d9;
+            background: #262626;
+            border-right: 1px solid #212121;
+            border-bottom: 1px solid #212121;
             padding: 10px 14px;
             font-size: 9pt;
-            color: #333;
+            color: #389EB6;
             max-width: 420px;
         }
-        #banner-upload-panel b { color: #af0a0f; display: block; margin-bottom: 6px; }
-        #banner-upload-panel input[type="file"] { color: #333; margin-bottom: 6px; display: block; }
+        #banner-upload-panel b { color: lightblue; display: block; margin-bottom: 6px; }
+        #banner-upload-panel input[type="file"] { color: #389EB6; margin-bottom: 6px; display: block; }
         #banner-upload-panel input[type="submit"] {
-            background: #eef2ff; color: #34345c;
-            border: 1px solid #b7c5d9; padding: 2px 10px;
-            cursor: pointer; font-size: 9pt;
-        }
-        #banner-upload-panel input[type="submit"]:hover { background: #d6daf0; }
-        .banner-msg-ok    { color: #117743; margin-top: 6px; font-size: 9pt; }
-        .banner-msg-error { color: #d00; margin-top: 6px; font-size: 9pt; }
-
-        /* ── Modals ── */
-        .bmodal {
-            display: none;
-            position: fixed;
-            top: 30px;
-            right: 8px;
-            z-index: 9999;
-            background: #fff;
-            border: 1px solid #b7c5d9;
-            padding: 10px 14px;
+            background: #1e1e1e;
+            color: #B5C8FF;
+            border: 1px solid #2e2e2e;
+            padding: 2px 10px;
+            cursor: pointer;
             font-size: 9pt;
-            color: #333;
         }
-        #identity { right: 40px; }
-        #faq-panel { right: 80px; max-width: 340px; line-height: 1.7; }
-        #options-panel { min-width: 200px; }
-        .bmodal b { color: #af0a0f; display: block; margin-bottom: 8px; }
-        .bmodal label { display: block; margin-bottom: 4px; color: #333; }
-        .bmodal hr { border-top: 1px solid #b7c5d9; margin: 8px 0; }
-        .bmodal select { background: #fff; color: #333; border: 1px solid #b7c5d9; margin-left: 4px; }
+        #banner-upload-panel input[type="submit"]:hover { background: #262626; color: #af005f; }
+        .banner-msg-ok    { color: #12BD7C; margin-top: 6px; font-size: 9pt; }
+        .banner-msg-error { color: #af005f; margin-top: 6px; font-size: 9pt; }
 
+        /* ── Hover overlay ── */
+        #hover_overlay {
+            width: 100%; height: 100%;
+            top: 0; right: 0;
+            position: fixed;
+            pointer-events: none;
+            display: flex;
+            z-index: 300;
+        }
+        #hover_overlay > video, #hover_overlay > img {
+            max-height: 100%; max-width: 100%;
+            margin: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* ── User background ── */
+        #user_bg {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -100;
+        }
+
+        /* ── Responsive ── */
         @media (max-width: 600px) {
             #catalog article { width: calc(50% - 4px); }
             #catalog article img.expanded,
             .cat-no-thumb { max-width: 100%; width: 100%; }
+            body { margin: 1px 0; -webkit-text-size-adjust: none; }
+            #banner { margin-left: 0; margin-right: 0; }
+            #navTop { margin-left: 0; }
         }
     </style>
 </head>
@@ -271,7 +436,8 @@ session_write_close();
     <b id="navTop"><?= render_nav($board_uri) ?></b>
     <b id="banner_center"></b>
     <span class="bfloat-group">
-        <a id="banner_FAQ" class="bfloat" title="Formatting help" style="font-style:italic;font-weight:bold;font-size:10pt;color:#34345c;line-height:1;">i</a>
+        <a id="banner_FAQ" class="bfloat" title="Formatting help"
+           style="font-style:italic;font-weight:bold;font-size:10pt;color:#64C0E8;line-height:1;">i</a>
         <a id="banner_identity" class="bfloat" title="Identity">
             <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
                 <path d="M4 0c-1.1 0-2 1.12-2 2.5s.9 2.5 2 2.5 2-1.12 2-2.5-.9-2.5-2-2.5zm-2.09 5c-1.06.05-1.91.92-1.91 2v1h8v-1c0-1.08-.84-1.95-1.91-2-.54.61-1.28 1-2.09 1-.81 0-1.55-.39-2.09-1z" />
@@ -287,42 +453,54 @@ session_write_close();
     </span>
 </span>
 
-<!-- FAQ modal -->
-<div id="faq-panel" class="bmodal" style="right:80px;">
+<!-- FAQ / Formatting modal -->
+<div id="faq-panel" class="bmodal">
     <b>Post Formatting</b>
     <table style="border-collapse:collapse;width:100%;">
-        <tr><td style="color:#34345c;padding-right:12px;">&gt;text</td><td>Greentext quote</td></tr>
-        <tr><td style="color:#34345c;padding-right:12px;">&gt;&gt;123</td><td>Link to post #123</td></tr>
-        <tr><td style="color:#34345c;padding-right:12px;">**text**</td><td><b>Bold</b></td></tr>
-        <tr><td style="color:#34345c;padding-right:12px;">__text__</td><td><em>Italic</em></td></tr>
-        <tr><td style="color:#34345c;padding-right:12px;">[spoiler]text[/spoiler]</td><td><span style="background:#333;color:#333;">Spoiler</span></td></tr>
-        <tr><td style="color:#34345c;padding-right:12px;">#flip</td><td>Coin flip</td></tr>
-        <tr><td style="color:#34345c;padding-right:12px;">#2d6</td><td>Roll 2d6 dice</td></tr>
-        <tr><td style="color:#34345c;padding-right:12px;">#8ball</td><td>Magic 8-ball</td></tr>
+        <tr><td style="color:#B5C8FF;padding-right:12px;">&gt;text</td><td>Greentext quote</td></tr>
+        <tr><td style="color:#B5C8FF;padding-right:12px;">&gt;&gt;123</td><td>Link to post #123</td></tr>
+        <tr><td style="color:#B5C8FF;padding-right:12px;">**text**</td><td><b>Bold</b></td></tr>
+        <tr><td style="color:#B5C8FF;padding-right:12px;">__text__</td><td><em>Italic</em></td></tr>
+        <tr><td style="color:#B5C8FF;padding-right:12px;">[spoiler]text[/spoiler]</td><td><span style="background:#1e1e1e;color:#1e1e1e;">Spoiler</span></td></tr>
+        <tr><td style="color:#B5C8FF;padding-right:12px;">#flip</td><td>Coin flip</td></tr>
+        <tr><td style="color:#B5C8FF;padding-right:12px;">#2d6</td><td>Roll 2d6 dice</td></tr>
+        <tr><td style="color:#B5C8FF;padding-right:12px;">#8ball</td><td>Magic 8-ball</td></tr>
     </table>
     <hr>
-    <div style="color:#888;">Max upload: 30 MB · JPG PNG GIF WEBP</div>
+    <div style="color:#626262;">Max upload: 30 MB · JPG PNG GIF WEBP</div>
 </div>
 
 <!-- Options panel -->
 <div id="options-panel" class="bmodal">
     <b>Options</b>
-    <label><input type="checkbox" id="opt-anon"> Anonymise names</label>
-    <label><input type="checkbox" id="opt-hidethumbs"> Hide thumbnails</label>
-    <hr>
-    <label>Theme:
-        <select id="theme-select">
-            <option value="ocean">ocean</option>
-            <option value="moe">moe</option>
-            <option value="gar">gar</option>
-            <option value="moon">moon</option>
-            <option value="ashita">ashita</option>
-            <option value="console">console</option>
-            <option value="tea">tea</option>
-            <option value="higan">higan</option>
-            <option value="rave">rave</option>
-        </select>
-    </label>
+    <ul class="option_tab_sel">
+        <li><a data-content="tab-0" class="tab_sel">General</a></li>
+        <li><a data-content="tab-1">Style</a></li>
+    </ul>
+    <ul class="option_tab_cont">
+        <li class="tab-0 tab_sel">
+            <label><input type="checkbox" id="opt-anon"> Anonymise names</label>
+            <label><input type="checkbox" id="opt-reltime"> Relative timestamps</label>
+        </li>
+        <li class="tab-1">
+            <label><input type="checkbox" id="opt-hidethumbs"> Hide thumbnails</label>
+            <br>
+            <label>Theme:
+                <select id="theme-select">
+                    <option value="ocean">ocean</option>
+                    <option value="moe">moe</option>
+                    <option value="gar">gar</option>
+                    <option value="moon">moon</option>
+                    <option value="ashita">ashita</option>
+                    <option value="console">console</option>
+                    <option value="tea">tea</option>
+                    <option value="higan">higan</option>
+                    <option value="rave">rave</option>
+                    <option value="tavern">tavern</option>
+                </select>
+            </label>
+        </li>
+    </ul>
 </div>
 
 <div id="headerTopMargin"></div>
@@ -350,7 +528,7 @@ session_write_close();
               action="<?= BASE_URL . h($board_uri) ?>/catalog<?= '?board=' . h($board_uri) ?>">
             <input type="hidden" name="_board" value="<?= h($board_uri) ?>">
             <input type="file" name="banner" accept="image/jpeg,image/png,image/gif,image/webp">
-            <div style="color:#888;font-size:8pt;margin-bottom:6px;">
+            <div style="color:#626262;font-size:8pt;margin-bottom:6px;">
                 Recommended: 300×100 px · JPG PNG GIF WEBP · max 2 MB
             </div>
             <input type="submit" value="Upload Banner">
@@ -401,7 +579,7 @@ session_write_close();
     </article>
     <?php endforeach; ?>
     <?php if (empty($threads)): ?>
-        <div style="color:#888;padding:16px 8px;width:100%;">No threads yet.</div>
+        <div style="color:#626262;padding:16px 8px;width:100%;">No threads yet.</div>
     <?php endif; ?>
     </div>
 
@@ -413,6 +591,7 @@ session_write_close();
 
 <script>
 (function () {
+    /* ── Theme switcher ── */
     var themeLink   = document.getElementById('theme');
     var themeSelect = document.getElementById('theme-select');
     var baseUrl     = <?= json_encode(BASE_URL) ?>;
@@ -427,12 +606,16 @@ session_write_close();
         });
     }
 
+    /* ── Anonymise ── */
     var optAnon = document.getElementById('opt-anon');
     if (optAnon) {
         optAnon.checked = localStorage.getItem('opt-anon') === '1';
-        optAnon.addEventListener('change', function () { localStorage.setItem('opt-anon', this.checked ? '1' : '0'); });
+        optAnon.addEventListener('change', function () {
+            localStorage.setItem('opt-anon', this.checked ? '1' : '0');
+        });
     }
 
+    /* ── Hide thumbnails ── */
     var optHide = document.getElementById('opt-hidethumbs');
     if (optHide) {
         optHide.checked = localStorage.getItem('opt-hidethumbs') === '1';
@@ -442,9 +625,26 @@ session_write_close();
             });
         }
         applyHide();
-        optHide.addEventListener('change', function () { localStorage.setItem('opt-hidethumbs', this.checked ? '1' : '0'); applyHide(); });
+        optHide.addEventListener('change', function () {
+            localStorage.setItem('opt-hidethumbs', this.checked ? '1' : '0');
+            applyHide();
+        });
     }
 
+    /* ── Options tab switching ── */
+    document.querySelectorAll('.option_tab_sel a').forEach(function (tab) {
+        tab.addEventListener('click', function (e) {
+            e.preventDefault();
+            var target = this.getAttribute('data-content');
+            document.querySelectorAll('.option_tab_sel a').forEach(function (t) { t.classList.remove('tab_sel'); });
+            document.querySelectorAll('.option_tab_cont li').forEach(function (p) { p.classList.remove('tab_sel'); });
+            this.classList.add('tab_sel');
+            var panel = document.querySelector('.option_tab_cont li.' + target);
+            if (panel) panel.classList.add('tab_sel');
+        });
+    });
+
+    /* ── Modal toggles ── */
     var modals = [
         { btn: document.getElementById('options'),         panel: document.getElementById('options-panel') },
         { btn: document.getElementById('banner_FAQ'),      panel: document.getElementById('faq-panel') },
@@ -468,6 +668,7 @@ session_write_close();
         });
     });
 
+    /* ── Banner upload panel ── */
     var uploadToggle = document.getElementById('banner-upload-toggle');
     var uploadPanel  = document.getElementById('banner-upload-panel');
     if (uploadToggle && uploadPanel) {
@@ -478,9 +679,13 @@ session_write_close();
         });
     }
 
+    /* ── Refresh banner after upload ── */
     <?php if ($banner_msg && str_starts_with($banner_msg, 'ok:')): ?>
     var bannerImg = document.getElementById('board-banner');
-    if (bannerImg) { bannerImg.style.display = ''; bannerImg.src = bannerImg.src.split('?')[0] + '?t=' + Date.now(); }
+    if (bannerImg) {
+        bannerImg.style.display = '';
+        bannerImg.src = bannerImg.src.split('?')[0] + '?t=' + Date.now();
+    }
     <?php endif; ?>
 })();
 </script>
