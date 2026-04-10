@@ -9,7 +9,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_board'])) {
         $db = db();
         $db->prepare("DELETE FROM posts WHERE board_uri=?")->execute([$uri]);
         $db->prepare("DELETE FROM boards WHERE uri=?")->execute([$uri]);
-        // Remove uploads
         $dir = __DIR__ . '/../public/uploads/' . $uri;
         if (is_dir($dir)) {
             array_map('unlink', glob("$dir/*.*"));
@@ -19,8 +18,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_board'])) {
     }
 }
 
-$boards  = get_all_boards();
-$reports = db()->query("SELECT r.*, p.body FROM reports r LEFT JOIN posts p ON p.board_post_id=r.post_id AND p.board_uri=r.board_uri WHERE r.resolved=0 ORDER BY r.created_at DESC LIMIT 50")->fetchAll();
+$boards = get_all_boards();
+
+// Fetch reports joined with post data — get thread_id so we can build a correct link
+$reports = db()->query("
+    SELECT r.*,
+           p.body,
+           p.thread_id,
+           COALESCE(p.thread_id, r.post_id) AS link_thread_id
+    FROM reports r
+    LEFT JOIN posts p ON p.board_post_id = r.post_id AND p.board_uri = r.board_uri
+    WHERE r.resolved = 0
+    ORDER BY r.created_at DESC
+    LIMIT 50
+")->fetchAll();
 ?><!doctype html>
 <html lang="en">
 <head>
@@ -28,11 +39,33 @@ $reports = db()->query("SELECT r.*, p.body FROM reports r LEFT JOIN posts p ON p
     <title>Admin Panel</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>public/css/style.css">
     <style>
-        .danger { color: #e55e5e; }
-        .confirm-delete { display:none; }
+        body { background:#1e1e1e; color:#389eb6; font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:10pt; margin:0; padding:0; }
+        a { color:#b5c8ff; } a:hover { color:#af005f; }
+        h1,h2 { color:#357edd; }
+        .admin-bar { background:rgba(46,46,46,0.9); border-bottom:1px solid #2a2a2a; padding:4px 10px; font-size:9pt; }
+        .admin-bar b { color:#add8e6; }
+        .wrap { padding:10px 16px; }
+
+        table { border-collapse:collapse; width:100%; margin-bottom:12px; font-size:9pt; }
+        th { background:#252525; color:#b5c8ff; text-align:left; padding:5px 8px; border-bottom:1px solid #333; }
+        td { padding:5px 8px; border-bottom:1px solid #252525; vertical-align:top; }
+        tr:hover td { background:rgba(255,255,255,0.02); }
+
+        .danger { color:#e55e5e; }
         td form { display:inline; }
-        .del-btn { background:none; border:none; color:#e55e5e; cursor:pointer; font-size:10pt; padding:0; }
+        .del-btn { background:none; border:none; color:#af005f; cursor:pointer; font-size:9pt; padding:0; }
         .del-btn:hover { text-decoration:underline; }
+
+        .post-preview {
+            max-width:340px; color:#8a8a8a; font-size:8pt;
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .report-actions a { margin-right:6px; font-size:9pt; white-space:nowrap; }
+        .resolve-link { color:#12bd7c !important; }
+        .resolve-link:hover { color:#af005f !important; }
+        .report-ip { color:#626262; font-size:8pt; }
+        .report-time { color:#626262; font-size:8pt; white-space:nowrap; }
+        .no-reports { color:#626262; font-size:9pt; padding:6px 0; }
     </style>
 </head>
 <body>
@@ -41,7 +74,9 @@ $reports = db()->query("SELECT r.*, p.body FROM reports r LEFT JOIN posts p ON p
     — <a href="<?= BASE_URL ?>admin/logout.php">Logout</a>
     — <a href="<?= BASE_URL ?>">Board</a>
 </div>
+<div class="wrap">
 <h1>Admin Panel</h1>
+
 <h2>Boards</h2>
 <table>
 <tr><th>URI</th><th>Title</th><th>Posts</th><th>Actions</th></tr>
@@ -65,19 +100,24 @@ $reports = db()->query("SELECT r.*, p.body FROM reports r LEFT JOIN posts p ON p
 
 <h2>Open Reports (<?= count($reports) ?>)</h2>
 <?php if (!$reports): ?>
-<p>No open reports.</p>
+<p class="no-reports">No open reports.</p>
 <?php else: ?>
 <table>
-<tr><th>Board</th><th>Post</th><th>Reason</th><th>IP</th><th>Actions</th></tr>
-<?php foreach ($reports as $r): ?>
+<tr><th>Time</th><th>Board</th><th>Post</th><th>Body</th><th>Reason</th><th>IP</th><th>Actions</th></tr>
+<?php foreach ($reports as $r):
+    $thread_url = BASE_URL . h($r['board_uri']) . '/thread/' . (int)$r['link_thread_id'] . '/#p' . (int)$r['post_id'];
+    $preview    = $r['body'] ? mb_substr(strip_tags($r['body']), 0, 120) : '(deleted)';
+?>
 <tr>
+    <td class="report-time"><?= h(date('m/d H:i', strtotime($r['created_at']))) ?></td>
     <td>/<?= h($r['board_uri']) ?>/</td>
-    <td><a href="<?= BASE_URL . h($r['board_uri']) ?>/thread/<?= $r['post_id'] ?>/#p<?= $r['post_id'] ?>">#<?= $r['post_id'] ?></a></td>
+    <td><a href="<?= $thread_url ?>" target="_blank">#<?= (int)$r['post_id'] ?></a></td>
+    <td><div class="post-preview" title="<?= h($preview) ?>"><?= h($preview) ?></div></td>
     <td><?= h($r['reason']) ?></td>
-    <td><?= h($r['reporter_ip']) ?></td>
-    <td>
-        <a href="delete.php?board=<?= h($r['board_uri']) ?>&post=<?= $r['post_id'] ?>">[Delete]</a>
-        <a href="resolve_report.php?id=<?= $r['id'] ?>">[Resolve]</a>
+    <td class="report-ip"><?= h($r['reporter_ip']) ?></td>
+    <td class="report-actions">
+        <a href="<?= BASE_URL ?>admin/delete.php?board=<?= urlencode($r['board_uri']) ?>&post=<?= (int)$r['post_id'] ?>" onclick="return confirm('Delete post #<?= (int)$r['post_id'] ?>?')">[Delete post]</a>
+        <a href="resolve_report.php?id=<?= (int)$r['id'] ?>" class="resolve-link">[Resolve]</a>
     </td>
 </tr>
 <?php endforeach; ?>
@@ -90,5 +130,6 @@ $reports = db()->query("SELECT r.*, p.body FROM reports r LEFT JOIN posts p ON p
 | <a href="manage_admins.php">[Manage Admins]</a>
 | <a href="bans.php">[Bans]</a>
 <?php endif; ?>
+</div>
 </body>
 </html>
