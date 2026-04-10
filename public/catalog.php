@@ -50,38 +50,35 @@ session_write_close();
     <meta charset="utf-8">
     <title>/<?= h($board_uri) ?>/ - Catalog</title>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
-    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/base.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>public/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>css/base.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>css/style.css">
     <link rel="stylesheet" id="theme">
     <style>
-        /* ── Base ── */
+        /* ── moe base ── */
         body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 10pt;
-            color: #389eb6;
-            background-color: #1e1e1e;
-            background-image: url(<?= BASE_URL ?>public/css/oceanKoi.png);
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-position: right bottom;
+            color: #000;
+            background-color: #eef2ff;
+            background-image: none;
             margin: 0; padding: 0;
         }
-        a { color: #b5c8ff; text-decoration: none; }
-        a:hover { color: #af005f; }
-        b { color: lightblue; }
-        em { color: #12bd7c; }
-        hr { border: 0; border-top: 1px solid #2e2e2e; margin: 4px 0; }
-
+        a { color: #34345c; text-decoration: none; }
+        a:hover { color: #d00; }
+        b { color: #117743; }
+        b.admin { color: #f00000; }
+        b.moderator { color: purple; }
+        em { color: #789922; }
+        hr { border: 0; border-top: 1px solid #b7c5d9; margin: 4px 0; }
         h1 {
-            font-family: "MS PGothic", Mona, "Hiragino Kaku Gothic Pro", Helvetica, sans-serif;
-            font-size: 28px;
-            color: #357edd;
-            text-shadow: #074854 1px 1px 0;
-            letter-spacing: 1px;
+            color: #af0a0f;
+            font: bolder 28px Tahoma, sans-serif;
+            letter-spacing: -2px;
+            text-shadow: none;
             margin: 0;
         }
 
-        /* ── Top banner bar ── */
+        /* ── Banner bar ── */
         #banner {
             display: flex;
             align-items: center;
@@ -90,34 +87,33 @@ session_write_close();
             box-sizing: border-box;
             padding: 3px 8px;
             font-size: 9pt;
-            background: rgba(46,46,46,0.75);
-            border-bottom: 1px solid #262626;
+            background: rgba(214,218,240,0.9);
+            border-bottom: 1px solid #b7c5d9;
+            color: #000;
         }
         #navTop { flex: 0 0 auto; }
-        #banner_center { flex: 1 1 auto; text-align: center; color: #389eb6; }
+        #navTop a { color: #34345c; }
+        #navTop a:hover { color: #d00; }
+        #banner_center { flex: 1 1 auto; text-align: center; color: #34345c; }
         .bfloat-group { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
         .bfloat { cursor: pointer; }
-        .bfloat svg { fill: #64c0e8; vertical-align: middle; }
-        .bfloat:hover svg { fill: #af005f; }
-        #sync { color: #626262; font-size: 8.5pt; }
-        #onlineCount { color: #626262; font-size: 8.5pt; }
+        .bfloat svg { fill: #34345c; vertical-align: middle; }
+        .bfloat:hover svg { fill: #d00; }
+        #sync { color: #888; font-size: 8.5pt; }
+        #sync.connected { color: #117743; }
+        #sync.error { color: #d00; }
+        #onlineCount { color: #888; font-size: 8.5pt; }
+        #banner_FAQ { color: #34345c !important; }
 
-        /* ── Board header (banner image + board title) ── */
-        #board-header {
-            text-align: center;
-            margin: 8px 0 4px 0;
-        }
-        #board-header img {
-            display: block;
-            margin: 0 auto 4px auto;
-            max-width: 400px;
-        }
+        /* ── Board header ── */
+        #board-header { text-align: center; margin: 8px 0 4px 0; }
+        #board-header img { display: block; margin: 0 auto 4px auto; max-width: 400px; }
 
         /* ── Thread nav ── */
         threads h1 {
-            font-family: "MS PGothic", Mona, "Hiragino Kaku Gothic Pro", Helvetica, sans-serif;
+            font-family: Tahoma, sans-serif;
             font-size: 1.4em;
-            color: #357edd;
+            color: #af0a0f;
             text-align: center;
             margin: 8px 0 2px 0;
         }
@@ -125,22 +121,18 @@ session_write_close();
             text-align: center;
             font-size: 9pt;
             margin: 2px 0;
-            color: #389eb6;
+            color: #34345c;
         }
-        aside.act.compact a {
-            color: #b5c8ff;
-        }
-        aside.act.compact a:hover { color: #af005f; }
+        aside.act.compact a { color: #34345c; }
+        aside.act.compact a:hover { color: #d00; }
 
-        /* ── Catalog grid — matches the reference exactly ── */
+        /* ── Catalog grid ── */
         #catalog {
             display: flex;
             flex-wrap: wrap;
             gap: 0;
             padding: 4px 8px;
         }
-
-        /* Each article matches the reference site's compact card */
         #catalog article {
             width: 160px;
             vertical-align: top;
@@ -154,17 +146,10 @@ session_write_close();
             position: relative;
         }
         #catalog article:hover {
-            border-color: #2e2e2e;
-            background: rgba(28,29,34,0.6);
+            border-color: #b7c5d9;
+            background: rgba(214,218,240,0.5);
         }
-
-        /* Thumbnail link block */
-        #catalog article > a {
-            display: block;
-            text-align: left;
-        }
-
-        /* The image itself — constrained like the reference */
+        #catalog article > a { display: block; text-align: left; }
         #catalog article img.expanded {
             display: block;
             max-width: 150px;
@@ -173,55 +158,42 @@ session_write_close();
             height: auto;
             object-fit: contain;
             margin-bottom: 3px;
-            background: #111;
+            background: #d6daf0;
+            border: 1px solid #b7c5d9;
         }
-
-        /* no-image placeholder */
         .cat-no-thumb {
             width: 150px;
             height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #111;
-            color: #444;
+            background: #d6daf0;
+            border: 1px solid #b7c5d9;
+            color: #888;
             font-size: 8pt;
             margin-bottom: 3px;
         }
-
-        /* Reply/image count + expand links — matches reference <small> */
         #catalog article small {
             display: block;
-            color: #389eb6;
+            color: #34345c;
             font-size: 8pt;
             margin-bottom: 2px;
             line-height: 1.4;
         }
-        #catalog article small .act.expansionLinks {
-            font-size: 8pt;
-        }
-        #catalog article small .act.expansionLinks a {
-            color: #b5c8ff;
-        }
-        #catalog article small .act.expansionLinks a:hover {
-            color: #af005f;
-        }
-
-        /* Subject 「」 heading */
+        #catalog article small .act.expansionLinks a { color: #34345c; }
+        #catalog article small .act.expansionLinks a:hover { color: #d00; }
         #catalog article h3 {
             font-size: 8.5pt;
             font-weight: bold;
-            color: #b5c8ff;
-            margin: 2px 0 2px 0;
+            color: #0f0c5d;
+            margin: 2px 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 152px;
         }
-
-        /* OP text snippet */
         #catalog article .cat-snippet {
-            color: #626262;
+            color: #555;
             font-size: 7.5pt;
             display: -webkit-box;
             -webkit-line-clamp: 4;
@@ -230,63 +202,51 @@ session_write_close();
             word-break: break-word;
             max-width: 152px;
         }
-
-        /* sticky pin */
-        .cat-sticky-pin { color: #af005f; font-size: 7.5pt; }
+        .cat-sticky-pin { color: #af0a0f; font-size: 7.5pt; }
 
         /* ── Admin banner upload ── */
-        #banner-upload-toggle {
-            display: inline-block;
-            margin: 4px 8px;
-            font-size: 9pt;
-            cursor: pointer;
-        }
+        #banner-upload-toggle { display: inline-block; margin: 4px 8px; font-size: 9pt; cursor: pointer; }
         #banner-upload-panel {
             display: none;
             margin: 4px 8px 8px 8px;
-            background: rgba(28,29,34,0.92);
-            border: 1px solid #262626;
+            background: #fff;
+            border: 1px solid #b7c5d9;
             padding: 10px 14px;
             font-size: 9pt;
-            color: #389eb6;
+            color: #333;
             max-width: 420px;
         }
-        #banner-upload-panel b { color: #b5c8ff; display: block; margin-bottom: 6px; }
-        #banner-upload-panel input[type="file"] { color: #8a8a8a; margin-bottom: 6px; display: block; }
+        #banner-upload-panel b { color: #af0a0f; display: block; margin-bottom: 6px; }
+        #banner-upload-panel input[type="file"] { color: #333; margin-bottom: 6px; display: block; }
         #banner-upload-panel input[type="submit"] {
-            background: #262626; color: #b5c8ff;
-            border: 1px solid #389eb6; padding: 2px 10px;
+            background: #eef2ff; color: #34345c;
+            border: 1px solid #b7c5d9; padding: 2px 10px;
             cursor: pointer; font-size: 9pt;
         }
-        #banner-upload-panel input[type="submit"]:hover { background: #389eb6; color: #1e1e1e; }
-        .banner-msg-ok    { color: #12bd7c; margin-top: 6px; font-size: 9pt; }
-        .banner-msg-error { color: #af005f; margin-top: 6px; font-size: 9pt; }
+        #banner-upload-panel input[type="submit"]:hover { background: #d6daf0; }
+        .banner-msg-ok    { color: #117743; margin-top: 6px; font-size: 9pt; }
+        .banner-msg-error { color: #d00; margin-top: 6px; font-size: 9pt; }
 
-        /* ── Options / Identity / FAQ modals ── */
+        /* ── Modals ── */
         .bmodal {
             display: none;
             position: fixed;
             top: 30px;
             right: 8px;
             z-index: 9999;
-            background: #262626;
-            border: 1px solid #212121;
-            border-right-color: #181818;
-            border-bottom-color: #181818;
+            background: #fff;
+            border: 1px solid #b7c5d9;
             padding: 10px 14px;
             font-size: 9pt;
-            color: #389eb6;
+            color: #333;
         }
         #identity { right: 40px; }
         #faq-panel { right: 80px; max-width: 340px; line-height: 1.7; }
         #options-panel { min-width: 200px; }
-        .bmodal b { color: #b5c8ff; display: block; margin-bottom: 8px; }
-        .bmodal label { display: block; margin-bottom: 4px; }
-        .bmodal hr { border-top: 1px solid #99225c; margin: 8px 0; }
-        .bmodal select {
-            background: #1e1e1e; color: #b5c8ff;
-            border: 1px solid #262626; margin-left: 4px;
-        }
+        .bmodal b { color: #af0a0f; display: block; margin-bottom: 8px; }
+        .bmodal label { display: block; margin-bottom: 4px; color: #333; }
+        .bmodal hr { border-top: 1px solid #b7c5d9; margin: 8px 0; }
+        .bmodal select { background: #fff; color: #333; border: 1px solid #b7c5d9; margin-left: 4px; }
 
         @media (max-width: 600px) {
             #catalog article { width: calc(50% - 4px); }
@@ -295,6 +255,7 @@ session_write_close();
         }
     </style>
 </head>
+<body>
 
 <!-- Identity modal -->
 <fieldset id="identity" class="bmodal">
@@ -310,7 +271,7 @@ session_write_close();
     <b id="navTop"><?= render_nav($board_uri) ?></b>
     <b id="banner_center"></b>
     <span class="bfloat-group">
-        <a id="banner_FAQ" class="bfloat" title="Formatting help" style="font-style:italic; font-weight:bold; font-size:10pt; color:#64c0e8; line-height:1;">i</a>
+        <a id="banner_FAQ" class="bfloat" title="Formatting help" style="font-style:italic;font-weight:bold;font-size:10pt;color:#34345c;line-height:1;">i</a>
         <a id="banner_identity" class="bfloat" title="Identity">
             <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
                 <path d="M4 0c-1.1 0-2 1.12-2 2.5s.9 2.5 2 2.5 2-1.12 2-2.5-.9-2.5-2-2.5zm-2.09 5c-1.06.05-1.91.92-1.91 2v1h8v-1c0-1.08-.84-1.95-1.91-2-.54.61-1.28 1-2.09 1-.81 0-1.55-.39-2.09-1z" />
@@ -329,18 +290,18 @@ session_write_close();
 <!-- FAQ modal -->
 <div id="faq-panel" class="bmodal" style="right:80px;">
     <b>Post Formatting</b>
-    <table style="border-collapse:collapse; width:100%;">
-        <tr><td style="color:#add8e6; padding-right:12px;">&gt;text</td><td>Greentext quote</td></tr>
-        <tr><td style="color:#add8e6; padding-right:12px;">&gt;&gt;123</td><td>Link to post #123</td></tr>
-        <tr><td style="color:#add8e6; padding-right:12px;">**text**</td><td><b>Bold</b></td></tr>
-        <tr><td style="color:#add8e6; padding-right:12px;">__text__</td><td><em>Italic</em></td></tr>
-        <tr><td style="color:#add8e6; padding-right:12px;">[spoiler]text[/spoiler]</td><td><span style="background:#000;color:#000;">Spoiler</span></td></tr>
-        <tr><td style="color:#add8e6; padding-right:12px;">#flip</td><td>Coin flip</td></tr>
-        <tr><td style="color:#add8e6; padding-right:12px;">#2d6</td><td>Roll 2d6 dice</td></tr>
-        <tr><td style="color:#add8e6; padding-right:12px;">#8ball</td><td>Magic 8-ball</td></tr>
+    <table style="border-collapse:collapse;width:100%;">
+        <tr><td style="color:#34345c;padding-right:12px;">&gt;text</td><td>Greentext quote</td></tr>
+        <tr><td style="color:#34345c;padding-right:12px;">&gt;&gt;123</td><td>Link to post #123</td></tr>
+        <tr><td style="color:#34345c;padding-right:12px;">**text**</td><td><b>Bold</b></td></tr>
+        <tr><td style="color:#34345c;padding-right:12px;">__text__</td><td><em>Italic</em></td></tr>
+        <tr><td style="color:#34345c;padding-right:12px;">[spoiler]text[/spoiler]</td><td><span style="background:#333;color:#333;">Spoiler</span></td></tr>
+        <tr><td style="color:#34345c;padding-right:12px;">#flip</td><td>Coin flip</td></tr>
+        <tr><td style="color:#34345c;padding-right:12px;">#2d6</td><td>Roll 2d6 dice</td></tr>
+        <tr><td style="color:#34345c;padding-right:12px;">#8ball</td><td>Magic 8-ball</td></tr>
     </table>
     <hr>
-    <div style="color:#626262;">Max upload: 30 MB · JPG PNG GIF WEBP WEBM</div>
+    <div style="color:#888;">Max upload: 30 MB · JPG PNG GIF WEBP</div>
 </div>
 
 <!-- Options panel -->
@@ -354,27 +315,22 @@ session_write_close();
             <option value="ocean">ocean</option>
             <option value="moe">moe</option>
             <option value="gar">gar</option>
-            <option value="mawaru">mawaru</option>
             <option value="moon">moon</option>
             <option value="ashita">ashita</option>
             <option value="console">console</option>
             <option value="tea">tea</option>
             <option value="higan">higan</option>
             <option value="rave">rave</option>
-            <option value="tavern">tavern</option>
-            <option value="glass">glass</option>
-            <option value="material">material</option>
         </select>
     </label>
 </div>
 
 <div id="headerTopMargin"></div>
 
-<!-- Board banner image (same as reference site: a big <h1> with an <img>) -->
 <h1>
     <img src="<?= BASE_URL ?>banners/banner-<?= h($board_uri) ?>.png"
          onerror="this.style.display='none'" alt="" id="board-banner"
-         style="display:block; margin:0 auto; max-width:100%;">
+         style="display:block;margin:0 auto;max-width:100%;">
 </h1>
 
 <threads>
@@ -394,7 +350,7 @@ session_write_close();
               action="<?= BASE_URL . h($board_uri) ?>/catalog<?= '?board=' . h($board_uri) ?>">
             <input type="hidden" name="_board" value="<?= h($board_uri) ?>">
             <input type="file" name="banner" accept="image/jpeg,image/png,image/gif,image/webp">
-            <div style="color:#626262; font-size:8pt; margin-bottom:6px;">
+            <div style="color:#888;font-size:8pt;margin-bottom:6px;">
                 Recommended: 300×100 px · JPG PNG GIF WEBP · max 2 MB
             </div>
             <input type="submit" value="Upload Banner">
@@ -417,8 +373,6 @@ session_write_close();
         $ic    = (int)($t['image_count'] ?? 0);
         $sticky = !empty($t['sticky']);
         $thread_url = BASE_URL . h($board_uri) . '/thread/' . $tid . '/';
-
-        // Compute thumbnail display dimensions (max 150×150, preserve aspect ratio)
         $tw = 150; $th = 150;
         if (!empty($t['thumb_width']) && !empty($t['thumb_height'])) {
             $ratio = $t['thumb_width'] / $t['thumb_height'];
@@ -436,7 +390,8 @@ session_write_close();
             <?php endif; ?>
         </a>
         <small>
-            <span title="Replies/Images"><?= $rc ?>/<?= $ic ?></span><span class="act expansionLinks">[<a href="<?= $thread_url ?>" class="history">Expand</a>] [<a href="<?= $thread_url ?>?last=100" class="history">Last 100</a>]</span>
+            <span title="Replies/Images"><?= $rc ?>/<?= $ic ?></span>
+            <span class="act expansionLinks">[<a href="<?= $thread_url ?>" class="history">Expand</a>] [<a href="<?= $thread_url ?>?last=100" class="history">Last 100</a>]</span>
         </small>
         <?php if ($subj): ?><h3>「<?= h($subj) ?>」</h3><?php endif; ?>
         <?php if ($body): ?>
@@ -446,9 +401,9 @@ session_write_close();
     </article>
     <?php endforeach; ?>
     <?php if (empty($threads)): ?>
-        <div style="color:#626262; padding:16px 8px; width:100%;">No threads yet.</div>
+        <div style="color:#888;padding:16px 8px;width:100%;">No threads yet.</div>
     <?php endif; ?>
-    </div><!-- /#catalog -->
+    </div>
 
     <hr>
     <aside class="act compact">
@@ -458,32 +413,26 @@ session_write_close();
 
 <script>
 (function () {
-    // ── Theme ──────────────────────────────────────────────────
     var themeLink   = document.getElementById('theme');
     var themeSelect = document.getElementById('theme-select');
-    var savedTheme  = localStorage.getItem('theme') || 'ocean';
-    function applyTheme(t) {
-        if (themeLink) themeLink.href = <?= json_encode(BASE_URL) ?> + 'public/css/themes/' + t + '.css';
-    }
-    applyTheme(savedTheme);
+    var baseUrl     = <?= json_encode(BASE_URL) ?>;
+    var saved = localStorage.getItem('theme') || 'ocean';
+    function applyTheme(t) { if (themeLink) themeLink.href = baseUrl + 'css/themes/' + t + '.css'; }
+    applyTheme(saved);
     if (themeSelect) {
-        themeSelect.value = savedTheme;
+        themeSelect.value = saved;
         themeSelect.addEventListener('change', function () {
             localStorage.setItem('theme', this.value);
             applyTheme(this.value);
         });
     }
 
-    // ── Anonymise ──────────────────────────────────────────────
     var optAnon = document.getElementById('opt-anon');
     if (optAnon) {
         optAnon.checked = localStorage.getItem('opt-anon') === '1';
-        optAnon.addEventListener('change', function () {
-            localStorage.setItem('opt-anon', this.checked ? '1' : '0');
-        });
+        optAnon.addEventListener('change', function () { localStorage.setItem('opt-anon', this.checked ? '1' : '0'); });
     }
 
-    // ── Hide thumbnails ────────────────────────────────────────
     var optHide = document.getElementById('opt-hidethumbs');
     if (optHide) {
         optHide.checked = localStorage.getItem('opt-hidethumbs') === '1';
@@ -493,21 +442,15 @@ session_write_close();
             });
         }
         applyHide();
-        optHide.addEventListener('change', function () {
-            localStorage.setItem('opt-hidethumbs', this.checked ? '1' : '0');
-            applyHide();
-        });
+        optHide.addEventListener('change', function () { localStorage.setItem('opt-hidethumbs', this.checked ? '1' : '0'); applyHide(); });
     }
 
-    // ── Modal toggles ──────────────────────────────────────────
     var modals = [
-        { btn: document.getElementById('options'),          panel: document.getElementById('options-panel') },
-        { btn: document.getElementById('banner_FAQ'),       panel: document.getElementById('faq-panel') },
-        { btn: document.getElementById('banner_identity'),  panel: document.getElementById('identity') },
+        { btn: document.getElementById('options'),         panel: document.getElementById('options-panel') },
+        { btn: document.getElementById('banner_FAQ'),      panel: document.getElementById('faq-panel') },
+        { btn: document.getElementById('banner_identity'), panel: document.getElementById('identity') },
     ];
-    function closeAll() {
-        modals.forEach(function (m) { if (m.panel) m.panel.style.display = 'none'; });
-    }
+    function closeAll() { modals.forEach(function (m) { if (m.panel) m.panel.style.display = 'none'; }); }
     modals.forEach(function (m) {
         if (!m.btn || !m.panel) return;
         m.btn.addEventListener('click', function (e) {
@@ -520,13 +463,11 @@ session_write_close();
     document.addEventListener('click', function (e) {
         modals.forEach(function (m) {
             if (!m.panel || m.panel.style.display === 'none') return;
-            if (!m.panel.contains(e.target) && (!m.btn || !m.btn.contains(e.target))) {
+            if (!m.panel.contains(e.target) && (!m.btn || !m.btn.contains(e.target)))
                 m.panel.style.display = 'none';
-            }
         });
     });
 
-    // ── Admin banner upload toggle ─────────────────────────────
     var uploadToggle = document.getElementById('banner-upload-toggle');
     var uploadPanel  = document.getElementById('banner-upload-panel');
     if (uploadToggle && uploadPanel) {
@@ -537,13 +478,9 @@ session_write_close();
         });
     }
 
-    // ── Reload banner after upload ─────────────────────────────
     <?php if ($banner_msg && str_starts_with($banner_msg, 'ok:')): ?>
     var bannerImg = document.getElementById('board-banner');
-    if (bannerImg) {
-        bannerImg.style.display = '';
-        bannerImg.src = bannerImg.src.split('?')[0] + '?t=' + Date.now();
-    }
+    if (bannerImg) { bannerImg.style.display = ''; bannerImg.src = bannerImg.src.split('?')[0] + '?t=' + Date.now(); }
     <?php endif; ?>
 })();
 </script>
