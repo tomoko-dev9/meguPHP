@@ -64,13 +64,24 @@ if ($file_key !== null) {
     } catch (Exception $e) {
         die(render_error('Upload failed: ' . h($e->getMessage())));
     }
+
+    // ── Spoiler: replace thumbnail with spoiler.png ───────────
+    if ($file_data && !empty($_POST['spoiler'])) {
+        $spoiler_src  = __DIR__ . '/../static/spoiler.png';
+        if (file_exists($spoiler_src)) {
+            $thumb_dest = UPLOAD_DIR . $board_uri . '/' . $file_data['thumb_name'];
+            copy($spoiler_src, $thumb_dest);
+            // Update thumb dimensions to spoiler.png size
+            [$sw, $sh] = getimagesize($spoiler_src);
+            $file_data['thumb_w'] = $sw;
+            $file_data['thumb_h'] = $sh;
+        }
+    }
 }
 
 $ip = get_ip();
 
 // -- Ensure SSE tables exist BEFORE opening the transaction -------------------
-// DDL (CREATE TABLE) causes an implicit commit in MySQL � always run outside
-// any open transaction to avoid silently ending it.
 try {
     db()->exec("
         CREATE TABLE IF NOT EXISTS live_payloads (
@@ -79,7 +90,7 @@ try {
             created_at    DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3)
         )
     ");
-} catch (Exception $e) { /* already exists � ignore */ }
+} catch (Exception $e) {}
 
 try {
     db()->exec("
@@ -93,7 +104,7 @@ try {
             INDEX idx_board        (board_uri, id)
         )
     ");
-} catch (Exception $e) { /* already exists � ignore */ }
+} catch (Exception $e) {}
 
 // -- Main transaction ----------------------------------------------------------
 try {
@@ -148,7 +159,6 @@ try {
 
     $actual_thread = $thread_id ?? $new_post_id;
 
-    // Insert live event � this is what live.php polls for
     db()->prepare("
         INSERT INTO live_events (board_uri, thread_id, post_id) VALUES (?,?,?)
     ")->execute([$board_uri, $actual_thread, $new_post_id]);
@@ -161,7 +171,7 @@ try {
     die(render_error('Database error: ' . h($e->getMessage())));
 }
 
-// -- Build and store SSE payload (outside transaction � non-fatal) -------------
+// -- Build and store SSE payload -----------------------------------------------
 try {
     $row_stmt = db()->prepare("SELECT * FROM posts WHERE board_uri = ? AND board_post_id = ?");
     $row_stmt->execute([$board_uri, $new_post_id]);
@@ -182,11 +192,9 @@ try {
         ON DUPLICATE KEY UPDATE payload = VALUES(payload)
     ")->execute([$live_event_id, $payload]);
 
-    // Prune old payloads (keep last 10 min)
     db()->exec("DELETE FROM live_payloads WHERE created_at < DATE_SUB(NOW(), INTERVAL 10 MINUTE)");
 
 } catch (Exception $e) {
-    // Non-fatal: post was committed, just SSE delivery won't work for this post
     error_log('[live_payload] ' . $e->getMessage());
 }
 
