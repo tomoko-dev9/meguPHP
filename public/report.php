@@ -1,25 +1,31 @@
 <?php
 require_once __DIR__ . '/../includes/core.php';
+
 $board_uri = preg_replace('/[^a-z0-9]/', '', $_GET['board'] ?? '');
 $post_id   = (int)($_GET['post'] ?? 0);
 $board     = get_board($board_uri);
-if (!$board || !$post_id) { die('Invalid request.'); }
+
+if (!$board || !$post_id) {
+    http_response_code(400);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Invalid request.']);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $reason = trim($_POST['reason'] ?? '');
-    $is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) || isset($_SERVER['HTTP_FETCH_DEST'])
-        || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === false);
     if (!$reason) {
-        if ($is_ajax) { http_response_code(400); header('Content-Type: application/json'); echo json_encode(['error' => 'Please provide a reason.']); exit; }
-        $msg = render_error('Please provide a reason.');
-    } else {
-        db()->prepare("INSERT INTO reports (post_id, board_uri, reason, reporter_ip) VALUES (?,?,?,?)")
-            ->execute([$post_id, $board_uri, $reason, get_ip()]);
-        if ($is_ajax) { header('Content-Type: application/json'); echo json_encode(['ok' => true]); exit; }
-        redirect(BASE_URL . $board_uri . '/');
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Please provide a reason.']);
+        exit;
     }
+    db()->prepare("INSERT INTO reports (post_id, board_uri, reason, reporter_ip) VALUES (?, ?, ?, ?)")
+        ->execute([$post_id, $board_uri, $reason, get_ip()]);
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => true]);
+    exit;
 }
-$msg = $msg ?? '';
 ?><!doctype html>
 <html lang="en">
 <head>
@@ -30,7 +36,6 @@ $msg = $msg ?? '';
 <body>
 <?= render_nav($board_uri) ?>
 <h1>Report Post #<?= $post_id ?></h1>
-<?= $msg ?>
 <fieldset>
 <form method="post">
 <div class="form-row"><label>Reason:</label>
