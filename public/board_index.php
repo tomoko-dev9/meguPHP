@@ -436,6 +436,36 @@ function idx_reply_thumb(array $post, string $board_uri): string {
     blockquote a { color: #8a8ff7; }
     .act-del a   { color: #af005f; font-size: 8pt; text-decoration: none; margin-left: 4px; }
     .act-del a:hover { text-decoration: underline; }
+    .act-report { font-size: 9pt; }
+    .act-report a { color: #b5c8ff; text-decoration: none; }
+    .act-report a:hover { color: #af005f; }
+
+    /* ── Report modal ── */
+    #report-modal {
+        display: none; position: fixed; z-index: 14000;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.55);
+    }
+    #report-modal-box {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: #262626; border: 1px solid #389eb6;
+        padding: 16px 20px; min-width: 280px;
+        font-size: 9pt; color: #389eb6;
+    }
+    #report-modal-box b { color: #b5c8ff; display: block; margin-bottom: 10px; font-size: 10pt; }
+    #report-modal-box input[type="text"] {
+        width: 100%; background: #1e1e1e; border: 1px solid #389eb6;
+        color: #b5c8ff; padding: 4px 6px; font-size: 9pt;
+        outline: none; box-sizing: border-box; margin-bottom: 10px;
+    }
+    #report-modal-box .report-btns { display: flex; gap: 8px; justify-content: flex-end; }
+    #report-modal-box button {
+        background: #1e1e1e; border: 1px solid #389eb6;
+        color: #b5c8ff; padding: 3px 12px; font-size: 9pt; cursor: pointer;
+    }
+    #report-modal-box button:hover { border-color: #af005f; color: #af005f; }
+    #report-modal-box .report-status { font-size: 8pt; color: #af005f; margin-bottom: 6px; min-height: 14px; }
     nav.post-nav a { color: #b5c8ff; text-decoration: none; font-size: 10pt; }
     nav.post-nav a:hover { color: #af005f; }
 
@@ -546,6 +576,19 @@ function idx_reply_thumb(array $post, string $board_uri): string {
 <div id="hover_overlay"></div>
 <div id="user_bg"></div>
 <div id="post-preview"></div>
+
+<!-- ── Report modal ── -->
+<div id="report-modal">
+    <div id="report-modal-box">
+        <b id="report-modal-title">Report Post</b>
+        <div class="report-status" id="report-status"></div>
+        <input type="text" id="report-reason" placeholder="Reason…" maxlength="300">
+        <div class="report-btns">
+            <button id="report-cancel-btn">Cancel</button>
+            <button id="report-submit-btn">Submit</button>
+        </div>
+    </div>
+</div>
 
 <span id="banner">
     <b id="navTop"><?= render_nav($board_uri) ?></b>
@@ -679,6 +722,7 @@ function idx_reply_thumb(array $post, string $board_uri): string {
                 <a href="<?= $thread_url ?>?quote=<?= $tid ?>" class="history">No.</a><a href="<?= $thread_url ?>#p<?= $tid ?>" class="history"><?= $tid ?></a>
             </nav>
             <span class="expansionLinks">[<a href="<?= $thread_url ?>" class="history">Expand</a>]<?php if ($rc >= 100): ?> [<a href="<?= $thread_url ?>?last=100" class="history">Last 100</a>]<?php endif; ?></span>
+            <span class="act-report">[<a href="#" class="report-link" data-board="<?= h($board_uri) ?>" data-post="<?= $tid ?>">Report</a>]</span>
             <?php if (is_admin()): ?>
             <span class="act-del"><a href="<?= BASE_URL ?>admin/delete.php?board=<?= urlencode($board_uri) ?>&post=<?= $tid ?>" onclick="return confirm('Delete thread?')">Del</a></span>
             <?php endif; ?>
@@ -719,6 +763,7 @@ function idx_reply_thumb(array $post, string $board_uri): string {
             <nav class="post-nav" style="display:inline;">
                 <a href="<?= $thread_url ?>?quote=<?= $rid ?>" class="history">No.</a><a href="<?= $thread_url ?>#p<?= $rid ?>" class="history"><?= $rid ?></a>
             </nav>
+            <span class="act-report">[<a href="#" class="report-link" data-board="<?= h($board_uri) ?>" data-post="<?= $rid ?>">Report</a>]</span>
             <?php if (is_admin()): ?>
             <span class="act-del"><a href="<?= BASE_URL ?>admin/delete.php?board=<?= urlencode($board_uri) ?>&post=<?= $rid ?>" onclick="return confirm('Delete?')">Del</a></span>
             <?php endif; ?>
@@ -1041,6 +1086,56 @@ function idx_reply_thumb(array $post, string $board_uri): string {
         optPrevEl.checked = localStorage.getItem('opt-previews') !== '0';
         optPrevEl.addEventListener('change', function () { localStorage.setItem('opt-previews', this.checked ? '1' : '0'); });
     }
+
+    /* ── Report modal ── */
+    var reportModal     = document.getElementById('report-modal');
+    var reportTitle     = document.getElementById('report-modal-title');
+    var reportStatus    = document.getElementById('report-status');
+    var reportReason    = document.getElementById('report-reason');
+    var reportSubmitBtn = document.getElementById('report-submit-btn');
+    var reportCancelBtn = document.getElementById('report-cancel-btn');
+    var _reportBoard = '', _reportPost = 0;
+
+    document.addEventListener('click', function (e) {
+        var a = e.target.closest('a.report-link'); if (!a) return;
+        e.preventDefault();
+        _reportBoard = a.getAttribute('data-board');
+        _reportPost  = a.getAttribute('data-post');
+        reportTitle.textContent  = 'Report Post #' + _reportPost;
+        reportStatus.textContent = '';
+        reportReason.value       = '';
+        reportModal.style.display = 'block';
+        reportReason.focus();
+    });
+    if (reportCancelBtn) reportCancelBtn.addEventListener('click', function () {
+        reportModal.style.display = 'none';
+    });
+    reportModal.addEventListener('click', function (e) {
+        if (e.target === reportModal) reportModal.style.display = 'none';
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') reportModal.style.display = 'none';
+    });
+    if (reportSubmitBtn) reportSubmitBtn.addEventListener('click', function () {
+        var reason = reportReason.value.trim();
+        if (!reason) { reportStatus.textContent = 'Please provide a reason.'; return; }
+        reportSubmitBtn.disabled = true;
+        reportStatus.textContent = '';
+        var fd = new FormData();
+        fd.append('reason', reason);
+        fetch(baseUrl + 'report.php?board=' + encodeURIComponent(_reportBoard) + '&post=' + _reportPost, {
+            method: 'POST', body: fd
+        }).then(function () {
+            reportStatus.style.color = '#12bd7c';
+            reportStatus.textContent = 'Report submitted.';
+            setTimeout(function () { reportModal.style.display = 'none'; reportStatus.style.color = ''; }, 1200);
+        }).catch(function () {
+            reportStatus.textContent = 'Error submitting report.';
+        }).finally(function () { reportSubmitBtn.disabled = false; });
+    });
+    reportReason.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') reportSubmitBtn.click();
+    });
 
     /* ── FIX: Seed known post IDs from server-rendered HTML before SSE connects.
        This prevents the flash animation from firing on posts that were already
